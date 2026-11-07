@@ -1,0 +1,52 @@
+rules_version = '2';
+// Iron Quest – pravidla databáze. Zkopíruj celé do Firebase konzole: Firestore Database → Rules → Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signed() { return request.auth != null; }
+    function admin() { return signed() && request.auth.token.email == 'm.zelivsky@gmail.com' && request.auth.token.email_verified == true; }
+    function mapPath() { return /databases/$(database)/documents/uidmap/$(request.auth.uid); }
+    function member() { return signed() && exists(mapPath()); }
+    function own(p) { return member() && get(mapPath()).data.pid == p; }
+    function claimPath(code) { return /databases/$(database)/documents/claims/$(code); }
+
+    // Google účet → hráč. Vznikne jen převzetím platného kódu (claims), jednou.
+    match /uidmap/{u} {
+      allow get: if signed() && (request.auth.uid == u || admin());
+      allow list, update, delete: if admin();
+      allow create: if signed() && request.auth.uid == u
+        && request.resource.data.keys().hasOnly(['pid', 'code', 't'])
+        && get(claimPath(request.resource.data.code)).data.claimedBy == null
+        && getAfter(claimPath(request.resource.data.code)).data.claimedBy == u
+        && request.resource.data.pid == (get(claimPath(request.resource.data.code)).data.pid == null
+              ? u : get(claimPath(request.resource.data.code)).data.pid);
+    }
+
+    // Převodní a zvací kódy. Číst jde jen konkrétní kód (ne seznam), vytvářet je smí jen správce.
+    match /claims/{code} {
+      allow get: if signed();
+      allow list, create, delete: if admin();
+      allow update: if admin() || (signed() && resource.data.claimedBy == null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimedBy', 'claimedAt'])
+        && request.resource.data.claimedBy == request.auth.uid
+        && existsAfter(mapPath()));
+    }
+
+    // Data party: číst smí jen členové party, zapisovat každý jen to svoje.
+    match /players/{p} {
+      allow read: if member() || admin();
+      allow write: if own(p) || admin();
+      match /workouts/{w} {
+        allow read: if member() || admin();
+        allow write: if own(p) || admin();
+      }
+    }
+    match /reactions/{p} {
+      allow read: if member() || admin();
+      allow write: if own(p) || admin();
+    }
+    match /chat/{p} {
+      allow read: if member() || admin();
+      allow write: if own(p) || admin();
+    }
+  }
+}
