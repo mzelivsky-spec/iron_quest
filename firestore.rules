@@ -4,48 +4,102 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signed() { return request.auth != null; }
     function admin() { return signed() && request.auth.token.email == 'm.zelivsky@gmail.com' && request.auth.token.email_verified == true; }
-    function mapPath() { return /databases/$(database)/documents/uidmap/$(request.auth.uid); }
+    function doc(c, id) { return /databases/$(database)/documents/$(c)/$(id); }
+    function mapPath() { return doc('uidmap', request.auth.uid); }
     function member() { return signed() && exists(mapPath()); }
-    function own(p) { return member() && get(mapPath()).data.pid == p; }
-    function claimPath(code) { return /databases/$(database)/documents/claims/$(code); }
+    function myPid() { return get(mapPath()).data.pid; }
+    function own(p) { return member() && myPid() == p; }
+    function meDoc() { return get(doc('players', myPid())).data; }
+    function myGuilds() { return meDoc().get('guilds', []); }
+    function myGuild() { return meDoc().get('guild', null); }
+    function sharesGuild(gs) { return member() && exists(doc('players', myPid())) && gs.hasAny(myGuilds()); }
+    function inviteFor(g) {
+      let p = doc('invites', request.auth.token.email.lower());
+      return request.auth.token.email_verified == true && exists(p) && get(p).data.guild == g;
+    }
+    function codeFor(g) {
+      let c = request.resource.data.get('joinCode', '');
+      return c != '' && get(doc('claims', c)).data.claimedBy == request.auth.uid && get(doc('claims', c)).data.get('guild', null) == g;
+    }
+    function foundedNow(g) { return !exists(doc('guilds', g)) && getAfter(doc('guilds', g)).data.leader == myPid(); }
+    // Hráč smí měnit guildu jen na tu, kam ho pozvali, kam má kód, nebo kterou právě zakládá. Odejít smí vždy.
+    function playerOk() {
+      let before = resource == null ? null : resource.data.get('guild', null);
+      let after = request.resource.data.get('guild', null);
+      let oldGs = resource == null ? [] : resource.data.get('guilds', []);
+      let added = request.resource.data.get('guilds', []).toSet().difference(oldGs.toSet());
+      return (after == before || after == null || inviteFor(after) || codeFor(after) || foundedNow(after))
+        && (added.size() == 0 || added == [after].toSet());
+    }
 
-    // Google účet → hráč. Vznikne jen převzetím platného kódu (claims), jednou.
+    // Google účet → hráč. Převzetím kódu (starý profil nebo zvací kód), nebo nový vlastní profil.
     match /uidmap/{u} {
       allow get: if signed() && (request.auth.uid == u || admin());
       allow list, update, delete: if admin();
       allow create: if signed() && request.auth.uid == u
         && request.resource.data.keys().hasOnly(['pid', 'code', 't'])
-        && get(claimPath(request.resource.data.code)).data.claimedBy == null
-        && getAfter(claimPath(request.resource.data.code)).data.claimedBy == u
-        && request.resource.data.pid == (get(claimPath(request.resource.data.code)).data.pid == null
-              ? u : get(claimPath(request.resource.data.code)).data.pid);
+        && request.resource.data.code == 'free' && request.resource.data.pid == u;
+      allow create: if signed() && request.auth.uid == u
+        && request.resource.data.keys().hasOnly(['pid', 'code', 't'])
+        && request.resource.data.code != 'free'
+        && get(doc('claims', request.resource.data.code)).data.claimedBy == null
+        && getAfter(doc('claims', request.resource.data.code)).data.claimedBy == u
+        && request.resource.data.pid == (get(doc('claims', request.resource.data.code)).data.pid == null
+              ? u : get(doc('claims', request.resource.data.code)).data.pid);
     }
 
-    // Převodní a zvací kódy. Číst jde jen konkrétní kód (ne seznam), vytvářet je smí jen správce.
+    // Kódy: převodní (jen správce) a zvací do guildy (kdokoli z té guildy). Číst jde jen konkrétní kód.
     match /claims/{code} {
       allow get: if signed();
-      allow list, create, delete: if admin();
+      allow list, delete: if admin();
+      allow create: if admin() || (member() && request.resource.data.pid == null && request.resource.data.claimedBy == null
+        && request.resource.data.guild == myGuild() && request.resource.data.by == myPid());
       allow update: if admin() || (signed() && resource.data.claimedBy == null
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimedBy', 'claimedAt'])
         && request.resource.data.claimedBy == request.auth.uid
         && existsAfter(mapPath()));
     }
 
-    // Data party: číst smí jen členové party, zapisovat každý jen to svoje.
+    // Pozvánky na e-mail do guildy. Zve kdokoli z guildy, pozvaný si přečte jen tu svoji.
+    match /invites/{email} {
+      allow get: if admin() || (signed() && request.auth.token.email.lower() == email);
+      allow list, delete: if admin();
+      allow create, update: if admin() || (member() && request.resource.data.guild == myGuild() && request.resource.data.by == myPid());
+    }
+
+    // Guildy: veřejné jen jméno, prapor a souhrnná čísla. Upravuje vůdce, čísla obnovuje kterýkoli člen.
+    match /guilds/{g} {
+      allow read: if true;
+      allow create: if member() && request.resource.data.leader == myPid()
+        && getAfter(doc('guildNames', request.resource.data.nameKey)).data.g == g;
+      allow update: if admin() || (member() && resource.data.leader == myPid())
+        || (member() && myGuild() == g && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stats']));
+      allow delete: if admin() || (member() && resource.data.leader == myPid());
+    }
+    match /guildNames/{key} {
+      allow read: if true;
+      allow create: if admin() || (member() && getAfter(doc('guilds', request.resource.data.g)).data.nameKey == key
+        && getAfter(doc('guilds', request.resource.data.g)).data.leader == myPid());
+      allow delete: if admin() || (member() && get(doc('guilds', resource.data.g)).data.leader == myPid());
+    }
+
+    // Data hráčů: vidí je jen ti, kdo s hráčem jsou nebo byli ve stejné guildě. Zapisuje každý jen svoje.
     match /players/{p} {
-      allow read: if member() || admin();
-      allow write: if own(p) || admin();
+      allow get: if own(p) || admin() || sharesGuild(resource.data.get('guilds', []));
+      allow list: if admin() || sharesGuild(resource.data.get('guilds', []));
+      allow create, update: if admin() || (own(p) && playerOk());
+      allow delete: if admin();
       match /workouts/{w} {
-        allow read: if member() || admin();
+        allow read: if own(p) || admin() || sharesGuild(get(doc('players', p)).data.get('guilds', []));
         allow write: if own(p) || admin();
       }
     }
     match /reactions/{p} {
-      allow read: if member() || admin();
+      allow read: if own(p) || admin() || sharesGuild(resource.data.get('guilds', []));
       allow write: if own(p) || admin();
     }
     match /chat/{p} {
-      allow read: if member() || admin();
+      allow read: if own(p) || admin() || sharesGuild(resource.data.get('guilds', []));
       allow write: if own(p) || admin();
     }
   }
