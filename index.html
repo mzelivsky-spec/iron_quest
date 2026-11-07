@@ -2,13 +2,14 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<script>try{var v=JSON.parse(localStorage.getItem("iq.view")||"{}"),z={l:1.1,xl:1.2}[v.z];if(z){document.documentElement.style.zoom=z;document.documentElement.style.setProperty("--z",z)}if(v.lupa){document.documentElement.classList.add("lupa");document.querySelector('meta[name="viewport"]').content="width=device-width, initial-scale=1, viewport-fit=cover"}}catch(e){}</script>
 <meta name="theme-color" content="#0b0a0b">
 <meta name="author" content="Milan Želivský">
 <title>Iron Quest</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700;800&family=Cinzel:wght@600;700&family=Barlow:wght@400;500&display=swap">
@@ -167,7 +168,7 @@ input,select{font:inherit;color:var(--fg)}
 /* brand */
 .brand{display:flex;align-items:center;justify-content:center;gap:14px;padding:14px 38px 17px;border-bottom:1px solid var(--line);position:relative}
 .brand::after{content:"";position:absolute;left:50%;bottom:-3px;width:5px;height:5px;background:var(--bg);border:1px solid var(--brass);transform:translateX(-50%) rotate(45deg)}
-.brand > svg{width:clamp(30px,9.5vw,38px);height:auto;aspect-ratio:100/120;flex:none}
+.brand > svg{width:clamp(30px,calc(9.5vw / var(--z, 1)),38px);height:auto;aspect-ratio:100/120;flex:none}
 .fsbtn{position:absolute;right:0;top:50%;transform:translateY(-60%);width:30px;height:30px;display:none;place-items:center;color:var(--dim);border:1px solid var(--line2);clip-path:polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)}
 .fsbtn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:square}
 .fsbtn:active{color:var(--brass2);border-color:var(--brass)}
@@ -175,7 +176,7 @@ input,select{font:inherit;color:var(--fg)}
 :root:fullscreen .fsbtn .out{display:none}
 :root:fullscreen .fsbtn .in{display:block}
 @media (pointer:coarse){.fs-ok .fsbtn{display:grid}}
-.brand .iq-word{font-family:var(--f-mark);font-weight:800;font-size:clamp(34px,10.5vw,44px);white-space:nowrap;line-height:1;letter-spacing:.02em;color:var(--fg)}
+.brand .iq-word{font-family:var(--f-mark);font-weight:800;font-size:clamp(34px,calc(10.5vw / var(--z, 1)),44px);white-space:nowrap;line-height:1;letter-spacing:.02em;color:var(--fg)}
 
 /* hero */
 .hero{display:flex;gap:12px;align-items:center;padding:14px 0 10px;width:100%;text-align:left}
@@ -335,9 +336,9 @@ h2.sec small{order:2;font-weight:400;letter-spacing:.04em;text-transform:none;fo
 .restbar button{border:1px solid var(--line2);padding:6px 8px;font-size:12px;color:var(--muted)}
 .restfull{position:fixed;inset:0;z-index:30;background:rgba(9,8,9,.97) var(--grain);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));animation:fade .2s ease}
 .restfull .lbl{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted)}
-.restring{position:relative;width:min(64vw,230px);aspect-ratio:1;max-width:100%}
+.restring{position:relative;width:min(calc(64vw / var(--z, 1)),230px);aspect-ratio:1;max-width:100%}
 .restring svg{width:100%;height:100%}
-.restring .tt{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:clamp(46px,15vw,66px)}
+.restring .tt{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:clamp(46px,calc(15vw / var(--z, 1)),66px)}
 .restfull.done .tt{color:var(--good)}
 .restctl{display:flex;gap:6px}
 .restctl button{border:1px solid var(--line2);padding:10px 13px;font-size:13px;min-width:64px;color:var(--muted)}
@@ -494,7 +495,7 @@ h2.sec small{order:2;font-weight:400;letter-spacing:.04em;text-transform:none;fo
 
 /* overlays */
 .pr-flash{position:fixed;inset:0;z-index:40;display:grid;place-items:center;pointer-events:none;background:rgba(8,5,5,.55);animation:fade .15s ease}
-.pr-flash svg.splat{position:absolute;width:min(92vw,420px);height:auto;animation:splat .5s cubic-bezier(.2,1.3,.4,1) both}
+.pr-flash svg.splat{position:absolute;width:min(calc(92vw / var(--z, 1)),420px);height:auto;animation:splat .5s cubic-bezier(.2,1.3,.4,1) both}
 .pr-flash .in{position:relative;text-align:center;animation:pop .6s .08s cubic-bezier(.2,1.4,.4,1) both}
 .pr-flash .t1{font-family:var(--f-mark);font-weight:800;font-size:54px;line-height:.95;color:#f3e9d8;text-shadow:0 2px 0 #3a0a09}
 .pr-flash .t2{font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.12em;margin-top:8px;color:#f3e9d8}
@@ -528,7 +529,7 @@ h2.sec small{order:2;font-weight:400;letter-spacing:.04em;text-transform:none;fo
 .tapk{position:fixed;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:1.5px solid rgba(255,214,150,.95);box-shadow:0 0 8px rgba(255,160,70,.8);pointer-events:none;z-index:62;animation:tapk .4s ease-out forwards}
 @keyframes tapk{from{opacity:1;transform:scale(.4)}to{opacity:0;transform:scale(1.8)}}
 .sp-top{position:relative;font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
-.sp-logo{position:relative;width:min(250px,66vw);-webkit-tap-highlight-color:transparent;animation:emerge 1.6s cubic-bezier(.2,.8,.2,1) both}
+.sp-logo{position:relative;width:min(250px,calc(66vw / var(--z, 1)));-webkit-tap-highlight-color:transparent;animation:emerge 1.6s cubic-bezier(.2,.8,.2,1) both}
 .sp-logo svg{display:block;width:100%;height:auto;overflow:visible}
 .sp-logo.hit{animation:strike .4s ease}
 .sp-word{position:relative;font-family:var(--f-mark);font-weight:800;font-size:46px;line-height:1;letter-spacing:.02em;color:var(--fg);margin-top:4px;animation:emerge 1.6s .25s cubic-bezier(.2,.8,.2,1) both}
@@ -839,7 +840,7 @@ h2.sec small{order:2;font-weight:400;letter-spacing:.04em;text-transform:none;fo
 
 /* boss tab */
 .boss{text-align:center;padding:4px 0 2px}
-.bstage{position:relative;width:min(200px,56vw);margin:0 auto}
+.bstage{position:relative;width:min(200px,calc(56vw / var(--z, 1)));margin:0 auto}
 .bhead.big{width:100%;height:auto;display:block;animation:breathe 5s ease-in-out infinite}
 .slash{position:absolute;inset:0;width:100%;height:100%}
 .slash path{stroke:#c22d27;stroke-width:3;stroke-linecap:round;stroke-dasharray:160;animation:slash .6s ease-out both}
@@ -854,7 +855,7 @@ h2.sec small{order:2;font-weight:400;letter-spacing:.04em;text-transform:none;fo
 .bhp i{display:block;height:100%;background:var(--blood2);transition:width .8s cubic-bezier(.2,.8,.2,1)}
 .bhpt{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:5px}
 .boss.pre .bname{font-size:30px}
-.boss.pre .bstage,.boss.pre > .bhead{width:min(170px,50vw);margin:0 auto}
+.boss.pre .bstage,.boss.pre > .bhead{width:min(170px,calc(50vw / var(--z, 1)));margin:0 auto}
 .trophies{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
 .trophy{display:flex;flex-direction:column;align-items:center;border:1px solid var(--line);padding:8px 4px;text-align:center;min-width:0}
 .trophy .bhead{width:56px;height:56px}
@@ -3303,7 +3304,7 @@ body.insess .gban .gcloth,html.hid .gban .gcloth{animation:none}
 .gcr2{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.gcr2 button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px 6px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
 .gcr2 button svg{width:26px;height:26px}.gcr2 button span{font-size:10.5px}.gcr2 button[aria-pressed=true]{border-color:var(--brass);color:var(--brass2);background:rgba(179,145,80,.1)}
 
-.gsplash .sp-logo{width:min(170px,46vw)}
+.gsplash .sp-logo{width:min(170px,calc(46vw / var(--z, 1)))}
 .gs-slogan{font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.08em;color:#f3e6c8;text-shadow:0 0 14px rgba(214,119,46,.45)}
 .gs-sub{font-size:13.5px;color:var(--muted);text-align:center;line-height:1.5;max-width:300px}.gs-sub b{color:var(--fg)}
 .gs-feat{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:2px 0 4px}
@@ -3343,6 +3344,53 @@ body.insess .gban .gcloth,html.hid .gban .gcloth{animation:none}
 .gsplash .sp-hint a{color:var(--muted)}
 .acct{display:flex;flex-direction:column;gap:6px;margin:6px 0 4px}
 .acct button{width:100%;padding:9px 12px;background:none;border:1px solid var(--line);color:var(--muted);font-size:12px;text-align:left}
+/* zobrazení + oznámení */
+html:not(.lupa), html:not(.lupa) *{touch-action:pan-x pan-y}
+html:not(.lupa) .scrim{touch-action:none}
+html:not(.lupa) .scrim .sheet, html:not(.lupa) .scrim .sheet *{touch-action:pan-x pan-y}
+.setsec{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:20px 0 4px}
+.setnav{display:flex;align-items:center;gap:12px;width:100%;padding:12px 0;background:none;border:0;border-bottom:1px solid var(--line);color:var(--fg);text-align:left}
+.setnav .sric,.setrow .sric{width:30px;height:30px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid var(--line2);color:var(--brass2)}
+.setnav .sric svg,.setrow .sric svg{width:17px;height:17px}
+.setnav .srtx,.setrow .srtx{flex:1;min-width:0}
+.setnav b,.setrow b{display:block;font-weight:500;font-size:14.5px}
+.setnav small,.setrow small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+.setnav .chev{color:var(--brass);font-size:18px}
+.setrow{display:flex;align-items:center;gap:12px;width:100%;padding:11px 0;background:none;border:0;border-bottom:1px solid var(--line);color:var(--fg);text-align:left}
+.setrow:disabled{opacity:.45}
+.tgl{width:44px;height:26px;border-radius:13px;background:var(--line2);position:relative;flex:none;transition:background .2s}
+.tgl:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--muted);transition:left .2s,background .2s}
+[aria-checked="true"] > .tgl{background:var(--blood)}
+[aria-checked="true"] > .tgl:after{left:21px;background:#f0dfb8}
+.vwcap{margin:-4px 0 6px;color:var(--muted);font-size:13px}
+.vwsec{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:18px 0 6px}
+.vwseg{display:flex;border:1px solid var(--line2)}
+.vwseg button{flex:1;padding:11px 0;background:none;border:0;color:var(--muted);font-size:13.5px}
+.vwseg button+button{border-left:1px solid var(--line2)}
+.vwseg button[aria-checked="true"]{background:rgba(179,145,80,.14);color:var(--fg);box-shadow:inset 0 -2px var(--brass)}
+.vwprev{margin-top:10px;border:1px solid var(--line);background:var(--panel);padding:12px 14px}
+.vwprev b{display:block;font-family:var(--f-display);font-size:18px;color:#efe3cc}
+.vwprev span{color:var(--muted);font-size:13.5px}
+.vwnote{font-size:12px;color:var(--dim);line-height:1.5;margin:12px 0 4px}
+.nfmaster{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:1px solid var(--brass);background:linear-gradient(90deg,rgba(179,145,80,.12),transparent);color:var(--fg);text-align:left}
+.nfmaster b{display:block;font-family:var(--f-display);font-size:15px;color:#efe3cc}
+.nfmaster small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.nfwarn{border:1px solid var(--line2);background:var(--panel);padding:12px;font-size:13px;line-height:1.5;color:var(--muted)}
+.nfwarn b{color:var(--fg);font-weight:500}
+.nfoff .setrow{pointer-events:none}
+.pushask{border:1px solid var(--line2);background:var(--panel);padding:16px;margin:0 0 14px;text-align:center}
+.pushask .pa-ic{width:34px;height:34px;margin:0 auto 4px;color:var(--brass2)}
+.pushask > b{display:block;font-family:var(--f-display);font-size:17px;color:#efe3cc;margin:2px 0 6px}
+.pushask p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0 0 12px}
+.pushask .pa-ios{font-size:12.5px}
+.pushask .pa-ios b{color:var(--fg);font-weight:500}
+.pushask .pa-later{display:block;width:100%;margin-top:8px;padding:10px;border:1px solid var(--line2);background:none;color:var(--muted);font-size:13px}
+#lupaoff{position:fixed;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:9999;display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--brass);background:#1b1612;color:var(--fg);font-size:12.5px;box-shadow:0 4px 18px rgba(0,0,0,.6)}
+#lupaoff svg{width:15px;height:15px;color:var(--brass2)}
+#lupaoff b{color:var(--brass2);font-weight:500}
+html[style*="--z"] .brand .iq-word{font-size:clamp(27px,calc(10.5vw / var(--z, 1)),44px)}
+html[style*="--z"] .hero .nick{flex:0 0 auto;max-width:58%}
+html[style*="--z"] .hero .rk{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
 </style>
 
 </head>
@@ -3464,6 +3512,52 @@ window.IQA = {
     await batch(ops); return codes;
   }
 };
+
+/* ---- oznámení (Firebase Cloud Messaging přes vlastní service worker sw.js) ---- */
+const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+let msgMod = null;
+const msg = async () => msgMod || (msgMod = await import("https://www.gstatic.com/firebasejs/13.2.0/firebase-messaging.js"));
+const pushSup = async () => { if (!("serviceWorker" in navigator) || !("Notification" in window) || !("PushManager" in window)) return false; try { return await (await msg()).isSupported(); } catch { return false; } };
+const swReg = async () => { const r = await navigator.serviceWorker.register("sw.js"); await navigator.serviceWorker.ready; return r; };
+const tokLs = { get: () => { try { return localStorage.getItem("iq.pushTok"); } catch { return null; } }, set: v => { try { v ? localStorage.setItem("iq.pushTok", v) : localStorage.removeItem("iq.pushTok"); } catch {} } };
+async function pushDoc(){ const s = await getDoc(doc(fs, "push/" + pid)); return s.exists() ? s.data() : {}; }
+window.IQA.push = {
+  async state(){
+    const sup = await pushSup(), perm = "Notification" in window ? Notification.permission : "default";
+    let d = {}; try { d = await pushDoc(); } catch {}
+    const tok = tokLs.get(), on = !!(sup && perm === "granted" && tok && d.tokens && d.tokens[tok]);
+    /* token se občas obnoví – v tichosti ho zaktualizujeme */
+    if (on) window.IQA.push.refresh().catch(() => {});
+    return {sup, ios:isIOS, standalone, perm, on, prefs:d.prefs || null};
+  },
+  async enable(){
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") return {ok:false, perm};
+    const m = await msg(), reg = await swReg();
+    const tok = await m.getToken(m.getMessaging(app), {serviceWorkerRegistration:reg});
+    if (!tok) return {ok:false, perm};
+    const d = await pushDoc(), tokens = {...(d.tokens || {}), [tok]:Date.now()};
+    await setDoc(doc(fs, "push/" + pid), {...d, tokens, t:Date.now()});
+    tokLs.set(tok); return {ok:true};
+  },
+  async refresh(){
+    const m = await msg(), reg = await swReg(), tok = await m.getToken(m.getMessaging(app), {serviceWorkerRegistration:reg}), old = tokLs.get();
+    if (!tok || tok === old) return;
+    const d = await pushDoc(), tokens = {...(d.tokens || {})}; delete tokens[old]; tokens[tok] = Date.now();
+    await setDoc(doc(fs, "push/" + pid), {...d, tokens}); tokLs.set(tok);
+  },
+  async disable(){
+    const tok = tokLs.get(), d = await pushDoc(), tokens = {...(d.tokens || {})};
+    if (tok) delete tokens[tok];
+    await setDoc(doc(fs, "push/" + pid), {...d, tokens});
+    try { const m = await msg(); await m.deleteToken(m.getMessaging(app)); } catch {}
+    tokLs.set(null);
+  },
+  prefs: p => setDoc(doc(fs, "push/" + pid), {prefs:p}, {merge:true})
+};
+/* co se stalo → fronta pro pošťáka; pevné id (boss) se zapíše jen jednou */
+window.IQA.pushq = (data, id) => setDoc(id ? doc(fs, "pushq/" + id) : doc(collection(fs, "pushq")), {...data, from:pid, t:Date.now(), done:false});
 
 let started = false;
 function start(u, p){
@@ -4191,7 +4285,7 @@ async function toggleReaction(pid, wid, emo){
   if (mine[k] === emo) delete mine[k]; else mine[k] = emo;
   const keys = Object.keys(mine); if (keys.length > 400) keys.slice(0, keys.length - 400).forEach(x => delete mine[x]);
   S.reactions[S.uid] = {r:mine}; bump(); render();
-  try { await db.doc("reactions/" + S.uid).set({r:mine, guilds:gQuery()}); } catch(e){ handleWriteErr(e); }
+  try { await db.doc("reactions/" + S.uid).set({r:mine, guilds:gQuery()}); if (mine[k] && pid !== S.uid) pushq({type:"react", to:pid, e:emo}); } catch(e){ handleWriteErr(e); }
 }
 function handleWriteErr(e){
   if (e?.code === "invalid_argument"){ S.readOnly = true; toast("Nemáš oprávnění ukládat. Zkus se odhlásit a přihlásit znovu."); }
@@ -5151,6 +5245,7 @@ const RIDE = {
 /* ===== Průvodce: short help, one card per topic ===== */
 const GUIDE_OF = {arenatab:"arena", muscmode:"svaly", booktab:"kniha"};
 const GI = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const PUSH_T_BELL0 = '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>';
 const GUIDE = [
   ["trenink","Trénink a XP",'<path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/>', () => `<p>Na úvodní stránce vyber partie a dej <b>Do boje</b>. Ke každému cviku zapisuj série. Váhu a opakování ti appka předvyplní podle minula.</p>
     <ul><li>Každá série dává XP podle váhy a opakování, osobák dá víc.</li><li>Za dokončený trénink <b>+30 XP</b>. Navíc +20 za 15+ sérií, +10 za hodinu a víc, +15 o víkendu.</li><li>Za XP stoupáš na levely a hodnosti. Liga (od železné až po legendární) se počítá z XP za tento týden.</li><li>Omylem spuštěný trénink zrušíš tlačítkem <b>Zahodit trénink</b> dole.</li></ul>`],
@@ -5167,6 +5262,7 @@ const GUIDE = [
   ["ultra","Ultra sady",'<path d="M12 2l2.6 6.6L21 9l-5 4.4L17.6 20 12 16.6 6.4 20 8 13.4 3 9l6.4-.4z"/>', () => { const st = myStats(), sets = Object.entries(SETS).filter(([sid]) => Object.values(COSM).some(c => c.set === sid && c.tier === 5));
     return `<p>Ultra legendární sady z truhel nepadají, každý kus se musí vybojovat. Tvůj postup:</p>${sets.map(([sid, S0]) => { const it = ["plate","frame","orn"].map(k => Object.entries(COSM).find(([, c]) => c.set === sid && c.slot === k)).filter(Boolean);
       return `<div class="gdult" style="--sc:${S0.c}"><b>${esc(S0.n)}</b>${it.map(([id, c]) => { const got = (st.cos||[]).includes(id), v = Math.min(c.need, Math.floor(c.prog?.(st) || 0)); return `<div class="gdur ${got ? "got" : ""}"><span>${esc(c.how)}</span><em class="num">${got ? "✓" : `${fmt(v)}/${fmt(c.need)}`}</em><i style="width:${got ? 100 : Math.round(v / c.need * 100)}%"></i></div>`; }).join("")}</div>`; }).join("")}`; }],
+  ["oznameni","Oznámení a zobrazení",PUSH_T_BELL0, () => `<ul><li><b>Oznámení</b> zapneš v <b>Profilu → Oznámení</b>. Chodí, když tě někdo hecuje, reaguje na tvůj trénink, jde do fitka, boss má posledních 10 % nebo padne a když začíná event.</li><li>Každý druh jde vypnout zvlášť. <b>Noční klid</b> nic nepošle mezi 22:00 a 7:00.</li><li>Oznámení rozesílá pošťák každých pár minut, takže chodí s malým zpožděním.</li><li><b>iPhone:</b> funguje jen s appkou přidanou na plochu (Safari → Sdílet → Přidat na plochu).</li><li><b>Zobrazení</b> v Profilu zvětší celou appku. <b>Režim lupy</b> zapne přibližování prsty.</li></ul><button class="btn" data-act="opennotif" style="margin-top:6px">Nastavit oznámení</button>`],
   ["sezona","Tažení a eventy",'<path d="M4 4h16v16H4zM4 9h16M9 4v5M15 4v5"/>', () => `<ul><li>Hraje se v <b>taženích</b> po 8 týdnech. Kdo nasbírá nejvíc XP, je <b>Pán tažení</b>.</li><li>Během roku přicházejí <b>eventy</b> (Halloween, Vánoce, Valentýn…) s vlastním bossem a odměnami. Když bossovi dáš aspoň 10 % ran, bereš eventovou jmenovku.</li><li>Na odměny eventu se podíváš ťuknutím na banner eventu.</li></ul>`]
 ];
 function guideSheet(sh){
@@ -5178,8 +5274,13 @@ function guideSheet(sh){
 }
 
 /* ===== Co je nového: version + short release notes ===== */
-const APP_VER = 95;
+const APP_VER = 96;
 const NEWS = [
+  {v:96, d:"8. 11.", t:"Oznámení a nová ikona", items:[
+    ["Oznámení", "Appka ti dá vědět, když tě kluci hecují, reagují na tvůj trénink, jdou do fitka, boss má posledních 10 % nebo padne a když začne event. Zapneš je v Profilu → Oznámení."],
+    ["iPhone", "Oznámení fungují, jen když máš appku na ploše: Safari → Sdílet → Přidat na plochu."],
+    ["Chová se jako appka", "Obrazovka se už nepřibližuje prsty ani dvojklikem. Kdo chce větší písmo, nastaví si v Profilu → Zobrazení velikost appky, nebo zapne režim lupy."],
+    ["Nová ikona", "Na ploše je teď erb z loga appky. Na Androidu se vymění sama, na iPhonu appku z plochy odeber a přidej znovu."]]},
   {v:95, d:"8. 11.", t:"Guildy", items:[
     ["Guildy", "Vaše parta je teď guilda Místní hoši s vlastním praporem. Kartu guildy najdeš nahoře v Aréně."],
     ["Síň praporů", "V Aréně → Guildy je pořadí všech guild podle XP na člena. Ostatní vidí jen souhrnná čísla."],
@@ -6158,7 +6259,7 @@ function profileSheet(){
     <div class="flabel">Symbol erbu <small style="text-transform:none;letter-spacing:0;color:var(--dim)">· ${tier[2].toLowerCase()} rám${nt ? `, od levelu ${nt[0]} ${nt[2].toLowerCase()}` : ""}</small></div>
     <div class="hscroll">${crestPicker(S.draftCrest ?? crestOf(p), "pcrest")}</div>
     ${(() => { const st = myStats(), ts = (st.cos||[]).filter(id => COSM[id]?.kind.startsWith("Titul")), cur = S.draftTitle ?? (p.title || ""); return ts.length ? `<div class="flabel" style="margin-top:14px">Titul pod jménem</div><div class="ttlpick"><button class="chip sm" data-act="ptitle" data-id="" aria-pressed="${!cur}">Podle tréninků</button>${ts.map(id => `<button class="chip sm" data-act="ptitle" data-id="${id}" aria-pressed="${cur === id}">${esc(COSM[id].n)}</button>`).join("")}</div>` : ""; })()}
-    ${vitrine(myStats())}<button class="verrow" data-act="news"><span>Iron Quest · verze ${APP_VER}</span><b>Novinky a opravy ›</b></button>${window.IQ ? `<div class="acct"><button data-act="logout">Odhlásit · ${esc(window.IQ.email || "")}</button></div>` : ""}`
+    ${vitrine(myStats())}<div class="setsec">Nastavení</div>${S.mode === "db" ? `<button class="setnav" data-act="opennotif"><span class="sric">${GI(PUSH_T_BELL)}</span><span class="srtx"><b>Oznámení</b><small>${pushSummary()}</small></span><span class="chev">›</span></button>` : ""}<button class="setnav" data-act="openview"><span class="sric">${GI('<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>')}</span><span class="srtx"><b>Zobrazení</b><small>Velikost: ${VIEW_N.find(x => x[0] === viewGet().z)?.[1] || "Normální"} · Režim lupy ${viewGet().lupa ? "zapnutý" : "vypnutý"}</small></span><span class="chev">›</span></button><button class="verrow" data-act="news"><span>Iron Quest · verze ${APP_VER}</span><b>Novinky a opravy ›</b></button>${window.IQ ? `<div class="acct"><button data-act="logout">Odhlásit · ${esc(window.IQ.email || "")}</button></div>` : ""}`
   : tab === "ward" ? wardrobe(p)
   : `    <div class="flabel" style="margin:16px 0 4px">Týdenní plán</div>
     ${order.map(d => `<div class="dayrow"><div class="dn">${DAYS[d]}</div><div class="chips">${PARTS.map(x => `<button class="chip sm" data-act="pday" data-d="${d}" data-id="${x.id}" aria-pressed="${(dp.days[d]||[]).includes(x.id)}">${x.name}</button>`).join("")}${(dp.days[d]||[]).length ? `<button class="chip sm homechip" data-act="phome" data-d="${d}" aria-pressed="${!!dp.home?.[d]}">Doma</button>` : ""}</div></div>`).join("")}
@@ -6286,6 +6387,7 @@ function gRanking(){
 }
 /* any member keeps the guild's public summary fresh (other guilds only ever see this) */
 function publishGuildStats(){
+  try { pushBossCheck(); } catch(e){ console.warn(e); }
   const g = myG(); if (S.mode !== "db" || !g || !gDoc(g) || !allLoaded() || S.readOnly) return;
   const st = gStatsNow(g), old = gDoc(g).stats || {};
   if (old.wk === st.wk && old.n === st.n && old.xpPer === st.xpPer && old.tr === st.tr && old.boss === st.boss && old.lvl === st.lvl) return;
@@ -6555,6 +6657,7 @@ function subscribeOwn(){
 }
 const gQuery = () => { const p = me(); return (p?.guilds || (p && p.guilds === undefined ? [LEGACY_G] : [])).slice(-5); };
 async function afterStart(){
+  pushInit();
   /* the owner moves the old party into its first guild once */
   if (S.isOwner && me()?.guilds === undefined) await migrateLegacy();
   let pend = null; try { pend = JSON.parse(localStorage.getItem("iq.pendJoin") || "null"); } catch {}
@@ -6574,7 +6677,7 @@ function tabArena(){
     ["chat","Hecovačka",'<path d="M4 5h16v11H9l-5 4z"/>',"Chat party. Hecuj, domlouvej se, provokuj."],
     ...(S.mode === "db" ? [["guildy","Guildy",'<path d="M5 3h14v12l-7 6-7-6z"/><path d="M9 8h6M9 11h6"/>',"Síň praporů: pořadí všech guild."]] : [])];
   const noG = S.mode === "db" && !myG();
-  let out = guildCard() + (noG ? "" : icoTabs("arenatab", tab, ATABS));
+  let out = pushAskCard() + guildCard() + (noG ? "" : icoTabs("arenatab", tab, ATABS));
   if (noG) return out + guildRanking();
   if (tab === "guildy") return out + guildRanking();
   if (tab === "duel"){
@@ -6844,7 +6947,7 @@ async function chatSend(){
   if (S.readOnly){ toast("Jen prohlížení."); return; }
   const mine = [...(CH()[meId()]?.m || []), {id:uidGen(), t:Date.now(), x, ...(S.mode === "db" ? {g:myG()} : {})}].slice(-CHAT_KEEP);
   inp.value = "";
-  await chatWrite(mine);
+  if (await chatWrite(mine)) pushq({type:"chat", x:x.slice(0, 120)});
   S.seen = Date.now(); lsSet("iq.seen", S.seen);
   refreshChatDom();
 }
@@ -7874,6 +7977,128 @@ function forgeSheet(sh){
     <p>Od levelu ${t[0]} nosíš ${t[2].toLowerCase()} erb. Uvidí ho celá parta.</p>
     <button class="btn btn-fire" data-act="close">Pokračovat</button></div></div>`;
 }
+/* ================= zobrazení: velikost appky + režim lupy ================= */
+const VIEW_Z = {n:1, l:1.1, xl:1.2}, VIEW_N = [["n","Normální"],["l","Větší"],["xl","Největší"]];
+const VP_APP = "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover";
+const VP_LUPA = "width=device-width, initial-scale=1, viewport-fit=cover";
+const viewGet = () => ({z:"n", lupa:false, ...(lsGet("iq.view") || {})});
+function viewApply(){
+  const v = viewGet(), z = VIEW_Z[v.z] || 1, h = document.documentElement;
+  h.style.zoom = z === 1 ? "" : String(z); if (z === 1) h.style.removeProperty("--z"); else h.style.setProperty("--z", z);
+  h.classList.toggle("lupa", !!v.lupa);
+  const m = document.querySelector('meta[name="viewport"]'); if (m) m.content = v.lupa ? VP_LUPA : VP_APP;
+  let b = document.getElementById("lupaoff");
+  if (v.lupa && !b){ b = document.createElement("button"); b.id = "lupaoff"; b.dataset.act = "lupaoff"; b.innerHTML = `${GI('<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>')}<span>Lupa zapnutá</span><b>Vypnout ✕</b>`; document.body.appendChild(b); }
+  if (!v.lupa && b) b.remove();
+}
+function viewSet(patch){ lsSet("iq.view", {...viewGet(), ...patch}); viewApply(); }
+/* iPhone ignoruje user-scalable=no, takže gesto přiblížení zastavíme sami (mimo režim lupy) */
+document.addEventListener("gesturestart", e => { if (!viewGet().lupa) e.preventDefault(); }, {passive:false});
+document.addEventListener("touchmove", e => { if (e.touches.length > 1 && !viewGet().lupa) e.preventDefault(); }, {passive:false});
+viewApply();
+
+function viewSheet(){
+  const v = viewGet();
+  return `<div class="scrim"><div class="sheet vwsheet"><div class="sheethead"><h3>Zobrazení</h3><button class="x" data-act="close" aria-label="Zavřít">×</button></div>
+    <p class="vwcap">Platí jen pro tenhle telefon.</p>
+    <div class="vwsec">Velikost appky</div>
+    <div class="vwseg" role="radiogroup" aria-label="Velikost appky">${VIEW_N.map(([k, l]) => `<button data-act="viewz" data-id="${k}" role="radio" aria-checked="${v.z === k}">${l}</button>`).join("")}</div>
+    <div class="vwprev"><b>Dnešní výprava</b><span>Takhle velké je písmo a tlačítka.</span></div>
+    <div class="vwsec">Lupa</div>
+    ${setRow("lupa", '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>', "Režim lupy", "Zapne přibližování dvěma prsty", v.lupa)}
+    <p class="vwnote">Běžně appka nejde přiblížit prsty ani dvojklikem, aby se chovala jako aplikace. Se zapnutou lupou je v rohu tlačítko na rychlé vypnutí.</p>
+  </div></div>`;
+}
+const setRow = (act, ic, t, sub, on, id = "", dis = false) => `<button class="setrow" data-act="${act}" data-id="${id}" role="switch" aria-checked="${!!on}" ${dis ? "disabled" : ""}><span class="sric">${GI(ic)}</span><span class="srtx"><b>${t}</b><small>${sub}</small></span><i class="tgl"></i></button>`;
+
+/* ================= oznámení ================= */
+const PUSH_T = [
+  ["chat", '<path d="M4 5h16v11H9l-5 4z"/>', "Hecovačka", "Nová zpráva od někoho z guildy"],
+  ["react", '<path d="M12 21c-4 0-7-3-7-7 0-4 3-6 4-10 2 2 3 4 3 6 1-1 2-2 2-4 3 2 5 5 5 8 0 4-3 7-7 7z"/>', "Reakce", "Někdo reagoval na tvůj trénink"],
+  ["train", '<path d="M4 20L14 10M14 10l2-6 4-1-1 4-6 2M20 20L10 10M10 10L8 4 4 3l1 4 6 2"/>', "Kámoš je ve fitku", "Když někdo z guildy začne trénink"],
+  ["boss", '<path d="M12 3c4.4 0 7 3 7 6.8 0 2.6-1.3 4.2-2.6 5.1V18H7.6v-3.1C6.3 14 5 12.4 5 9.8 5 6 7.6 3 12 3z"/><path d="M9.5 11h.01M14.5 11h.01M10 18v3M14 18v3"/>', "Boss", "Posledních 10 % a pád bosse"],
+  ["event", '<path d="M4 4h16v16H4zM4 9h16M9 4v5M15 4v5"/>', "Eventy", "Začátek nového eventu"]];
+const PUSH_T_BELL = '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>';
+const PUSH_DEF = {chat:true, react:true, train:true, boss:true, event:true, quiet:true};
+S.push = null;
+async function pushInit(){
+  if (S.mode !== "db" || !window.IQA?.push) return;
+  try { S.push = await window.IQA.push.state(); } catch { S.push = {sup:false}; }
+  render();
+}
+const pushPrefs = () => ({...PUSH_DEF, ...(S.push?.prefs || {})});
+function pushSummary(){
+  const p = S.push; if (!p) return "Načítám…";
+  if (!p.sup) return p.ios && !p.standalone ? "Nejdřív přidej appku na plochu" : "Tenhle prohlížeč je neumí";
+  if (!p.on) return p.perm === "denied" ? "Zakázané v nastavení telefonu" : "Vypnutá";
+  const pr = pushPrefs(), n = PUSH_T.filter(([k]) => pr[k]).length;
+  return `Zapnutá · ${n} z ${PUSH_T.length} druhů${pr.quiet ? " · noční klid" : ""}`;
+}
+const IOS_HINT = `Na iPhonu oznámení fungují, jen když máš appku na ploše: v Safari ťukni na <b>Sdílet</b> → <b>Přidat na plochu</b> a otevři Iron Quest odtamtud.`;
+function notifSheet(){
+  const p = S.push || {}, pr = pushPrefs(), on = !!p.on;
+  let top;
+  if (!S.push) top = `<p class="vwnote">Načítám…</p>`;
+  else if (!p.sup) top = `<div class="nfwarn">${p.ios && !p.standalone ? IOS_HINT : "Tenhle prohlížeč oznámení neumí. Zkus Chrome na Androidu, nebo appku přidanou na plochu iPhonu."}</div>`;
+  else if (p.perm === "denied") top = `<div class="nfwarn">Oznámení jsou pro Iron Quest zakázaná v nastavení telefonu nebo prohlížeče. Povol je tam a vrať se sem.</div>`;
+  else top = `<button class="nfmaster" data-act="pushmaster" role="switch" aria-checked="${on}" ${S.pushBusy ? "disabled" : ""}><i class="tgl"></i><span><b>${on ? "Oznámení zapnutá" : "Oznámení vypnutá"}</b><small>${S.pushBusy ? "Chvilku…" : "Na tomhle telefonu"}</small></span></button>`;
+  return `<div class="scrim"><div class="sheet vwsheet"><div class="sheethead"><h3>Oznámení</h3><button class="x" data-act="close" aria-label="Zavřít">×</button></div>
+    ${top}
+    <div class="vwsec">Co mi posílat</div>
+    <div class="${on ? "" : "nfoff"}">${PUSH_T.map(([k, ic, t, sub]) => setRow("pushpref", ic, t, sub, pr[k], k, !on)).join("")}
+    <div class="vwsec">Klid</div>
+    ${setRow("pushpref", '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>', "Noční klid", "Nic mezi 22:00 a 7:00", pr.quiet, "quiet", !on)}</div>
+    <p class="vwnote">Oznámení chodí s malým zpožděním, většinou do 5 až 15 minut. Nastavení druhů platí pro všechna tvoje zařízení.</p>
+  </div></div>`;
+}
+async function pushMaster(){
+  if (S.pushBusy || !S.push?.sup) return;
+  S.pushBusy = true; render();
+  try {
+    if (S.push.on){ await window.IQA.push.disable(); toast("Oznámení vypnutá."); }
+    else { const r = await window.IQA.push.enable(); if (!r.ok) toast(r.perm === "denied" ? "Telefon oznámení nepovolil." : "Oznámení se nepovedlo zapnout."); else toast("Oznámení zapnutá 🔔"); }
+    S.push = await window.IQA.push.state();
+  } catch(e){ console.warn(e); toast("Oznámení se nepovedlo zapnout."); }
+  S.pushBusy = false; lsSet("iq.pushAsk", 1); render();
+}
+async function pushPref(k){
+  if (!S.push?.on) return;
+  const pr = {...pushPrefs(), [k]:!pushPrefs()[k]}; S.push.prefs = pr; render();
+  try { await window.IQA.push.prefs(pr); } catch { toast("Nepovedlo se uložit."); }
+}
+/* karta v Aréně: jednou nabídne zapnutí */
+function pushAskCard(){
+  const p = S.push;
+  if (S.mode !== "db" || S.readOnly || !p || p.on || lsGet("iq.pushAsk") || p.perm === "denied") return "";
+  if (!p.sup && !(p.ios && !p.standalone)) return "";
+  const ios = !p.sup;
+  return `<div class="pushask"><div class="pa-ic">${GI('<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>')}</div>
+    <b>Nic ti neuteče</b><p>Dáme ti vědět, když tě kluci hecují, reagují na tvůj trénink, jdou do fitka nebo padá boss.</p>
+    ${ios ? `<p class="pa-ios">${IOS_HINT}</p><button class="pa-later" data-act="pushlater">Rozumím</button>`
+      : `<button class="btn btn-fire" data-act="pushon">Zapnout oznámení</button><button class="pa-later" data-act="pushlater">Teď ne</button>`}</div>`;
+}
+/* fronta pro pošťáka: appka jen zapíše, co se stalo; rozešle to pošťák na GitHubu */
+function pushq(data, id){
+  if (S.mode !== "db" || S.demo || S.readOnly || !window.IQA?.pushq) return;
+  const g = myG(); if (!g) return;
+  window.IQA.pushq({...data, g}, id).catch(() => {});
+}
+function pushBossCheck(){
+  if (S.mode !== "db" || S.demo || !allLoaded()) return;
+  const g = myG(), W = (S.gWorld && S.gWorld[g]) || null, cb = W?.bosses?.find(x => x.cur);
+  if (!g || !cb || !cb.hp) return;
+  const done = lsGet("iq.pushB") || {}, key = (k) => `${k}_${g}_${cb.wk}`;
+  const send = (k, data) => { const id = key(k); if (done[id]) return; done[id] = 1; lsSet("iq.pushB", Object.fromEntries(Object.entries(done).slice(-20))); pushq({...data, wk:cb.wk, b:cb.b.n}, id); };
+  if (cb.defeated) send("bosskill", {type:"bosskill", killer:cb.killer || "", kn:PALL()[cb.killer]?.nick || "Hráč"});
+  else if (cb.total >= cb.hp * .9) send("boss10", {type:"boss10", pct:Math.max(1, Math.ceil((1 - cb.total / cb.hp) * 100))});
+}
+/* odkaz z oznámení: ?go=chat / boss / arena */
+(() => { try {
+  const u = new URL(location.href), go = u.searchParams.get("go"); if (!go) return;
+  if (go === "chat"){ S.tab = "arena"; S.arenaTab = "chat"; } else if (go === "boss") S.tab = "boss"; else if (go === "arena"){ S.tab = "arena"; S.arenaTab = "kronika"; }
+  u.searchParams.delete("go"); history.replaceState(null, "", u);
+} catch {} })();
+
 function sheetHTML(){
   const sh = S.sheet; if (!sh) return "";
   if (sh.type === "ex") return exSheet(sh.ex);
@@ -7886,6 +8111,8 @@ function sheetHTML(){
   if (sh.type === "guild") return guildSheet();
   if (sh.type === "gforge") return guildForgeSheet();
   if (sh.type === "invite") return inviteSheet();
+  if (sh.type === "notif") return notifSheet();
+  if (sh.type === "view") return viewSheet();
   if (sh.type === "guide") return guideSheet(sh);
   if (sh.type === "news") return newsSheet(sh);
   if (sh.type === "loot") return lootSheet(sh);
@@ -8241,7 +8468,7 @@ function curLoc(){
 function startSession(parts, queue){
   S.session = {start:Date.now(), mood:S.mood, loc:curLoc(), parts:PARTS.map(x=>x.id).filter(x => parts.includes(x)), active:null, sets:[], queue:queue||[]};
   S.session.active = S.session.parts[0]; persistSession(); keepAwake(true); render(); window.scrollTo(0,0);
-  if (!S.demo && !S.readOnly) writePlayer({live:{t:S.session.start, parts:S.session.parts}});
+  if (!S.demo && !S.readOnly){ writePlayer({live:{t:S.session.start, parts:S.session.parts}}); pushq({type:"train", parts:S.session.parts.map(x => PNAME[x] || x)}); }
 }
 function openEx(ex, part){
   const s = S.session;
@@ -8447,6 +8674,15 @@ document.addEventListener("click", async e => {
     case "invcopy": try { navigator.clipboard.writeText(S.inv?.code || ""); toast("Kód zkopírován"); } catch {} break;
     case "openchat": S.tab = "arena"; S.arenaTab = "chat"; lsSet("iq.tab", "arena"); S.seen = Date.now(); lsSet("iq.seen", S.seen); render(); window.scrollTo(0,0); break;
     case "chatsend": chatSend(); break;
+    case "opennotif": if (S.mode !== "db"){ toast("Oznámení fungují jen v přihlášené appce."); break; } S.sheet = {type:"notif"}; render(); if (!S.push) pushInit(); break;
+    case "openview": S.sheet = {type:"view"}; render(); break;
+    case "pushmaster": pushMaster(); break;
+    case "pushpref": pushPref(id); break;
+    case "pushon": if (!S.push?.sup){ lsSet("iq.pushAsk", 1); render(); } else pushMaster(); break;
+    case "pushlater": lsSet("iq.pushAsk", 1); render(); break;
+    case "viewz": viewSet({z:id}); render(); break;
+    case "lupa": viewSet({lupa:!viewGet().lupa}); render(); if (viewGet().lupa) toast("Lupa zapnutá. Přibližuj dvěma prsty."); break;
+    case "lupaoff": viewSet({lupa:false}); render(); break;
     case "chatdel": { const mine = (CH()[meId()]?.m || []).filter(m => m.id !== id); await chatWrite(mine); refreshChatDom(); render(); break; }
     case "lbmode": S.lbMode = id; render(); break;
     case "booktab": if (id === "badges") S.bookTab = "badges"; else { S.bookTab = "stats"; S.statTab = id; S.histN = 10; } render(); window.scrollTo(0, 0); break;

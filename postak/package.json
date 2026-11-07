@@ -1,0 +1,7 @@
+{
+  "name": "iron-quest-postak",
+  "private": true,
+  "type": "module",
+  "description": "Rozesílá oznámení Iron Quest (GitHub Actions).",
+  "dependencies": { "firebase-admin": "^13.0.0" }
+}

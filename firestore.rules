@@ -107,5 +107,19 @@ service cloud.firestore {
       allow read: if own(p) || admin() || sharesGuild(resource.data.get('guilds', []));
       allow write: if own(p) || admin();
     }
+
+    // Oznámení: zařízení a nastavení každého hráče. Čte a píše jen on sám (pošťák má vlastní klíč).
+    match /push/{p} {
+      allow read, write: if own(p) || admin();
+    }
+    // Fronta pro pošťáka: appka jen zapíše, co se stalo. Číst a mazat ji smí jen pošťák a správce.
+    match /pushq/{id} {
+      allow create: if member() && request.resource.data.from == myPid() && request.resource.data.g == myGuild()
+        && request.resource.data.done == false
+        && request.resource.data.type in ['chat', 'react', 'train', 'boss10', 'bosskill']
+        && request.resource.data.keys().hasOnly(['type', 'from', 'g', 't', 'done', 'x', 'to', 'e', 'parts', 'wk', 'b', 'pct', 'killer', 'kn'])
+        && request.resource.data.get('x', '').size() <= 200;
+      allow read, delete: if admin();
+    }
   }
 }
