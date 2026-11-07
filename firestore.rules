@@ -12,7 +12,12 @@ service cloud.firestore {
     function meDoc() { return get(doc('players', myPid())).data; }
     function myGuilds() { return meDoc().get('guilds', []); }
     function myGuild() { return meDoc().get('guild', null); }
-    function sharesGuild(gs) { return member() && exists(doc('players', myPid())) && gs.hasAny(myGuilds()); }
+    // Sdílí aspoň jednu z mých posledních 5 guild (appka se ptá zvlášť na každou guildu, „array-contains“).
+    function shares(m, gs) {
+      return m.size() > 0 && ((m[m.size() - 1] in gs) || (m.size() > 1 && m[m.size() - 2] in gs) || (m.size() > 2 && m[m.size() - 3] in gs)
+        || (m.size() > 3 && m[m.size() - 4] in gs) || (m.size() > 4 && m[m.size() - 5] in gs));
+    }
+    function sharesGuild(gs) { return member() && exists(doc('players', myPid())) && shares(myGuilds(), gs); }
     function inviteFor(g) {
       let p = doc('invites', request.auth.token.email.lower());
       return request.auth.token.email_verified == true && exists(p) && get(p).data.guild == g;

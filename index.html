@@ -4242,20 +4242,22 @@ async function init(){
 function subscribePlayers(){
   const gq = gQuery();
   if (!gq.length){ S.playersLoaded = true; bump(); render(); return; }
-  gSubs.unsub.push(db.collection("players").where("guilds", "array-contains-any", gq).onSnapshot(snap => {
+  const seen = new Set();
+  for (const gg of gq) gSubs.unsub.push(db.collection("players").where("guilds", "array-contains", gg).onSnapshot(snap => {
+    seen.add(gg);
     for (const d of snap.docs){
       const data = d.data() || {};
       S.players[d.id] = {...(S.players[d.id]||{workouts:[]}), nick:data.nick||"Hráč", crest:data.crest||null, nickSet:!!data.nickSet, custom:data.custom||[], created:data.created, plan:data.plan||null, notes:data.notes||{}, bw:data.bw||[], h:data.h||null, sex:data.sex||null, title:data.title||null, wear:data.wear||null, goal:data.goal||null, chests:data.chests||[], live:data.live||null, draft:data.draft||null, ui:data.ui||null, guild:data.guild||null, guilds:data.guilds, ghist:data.ghist||null, joinedAt:data.joinedAt||0, joinCode:data.joinCode||""};
       if (!subs[d.id]) subscribeWorkouts(d.id);
     }
-    S.playersLoaded = true;
+    if (seen.size >= gq.length) S.playersLoaded = true;
     bump(); resolveProfiles(); render();
     /* a training cut short by a closed browser comes back from the database copy */
     restoreDraft();
     /* "právě cvičí" left over from a training that is no longer open here: clear it once */
     if (!subscribePlayers.healed && !S.session && !S.demo && !S.readOnly && (me()?.live || me()?.draft)){ subscribePlayers.healed = true; writePlayer({live:null, draft:null}); }
     publishGuildStats();
-  }, () => { S.playersLoaded = true; render(); }));
+  }, () => { seen.add(gg); if (seen.size >= gq.length) S.playersLoaded = true; render(); }));
 }
 function subscribeWorkouts(id){
   if (subs[id] || Object.keys(subs).length >= 55) return;
@@ -4269,15 +4271,19 @@ function subscribeWorkouts(id){
 }
 function subscribeChat(){
   const gq = gQuery(); if (!gq.length) return;
-  gSubs.unsub.push(db.collection("chat").where("guilds", "array-contains-any", gq).onSnapshot(snap => {
-    S.chat = {}; for (const d of snap.docs) S.chat[d.id] = d.data() || {};
+  const per = {};
+  for (const gg of gq) gSubs.unsub.push(db.collection("chat").where("guilds", "array-contains", gg).onSnapshot(snap => {
+    per[gg] = {}; for (const d of snap.docs) per[gg][d.id] = d.data() || {};
+    S.chat = Object.assign({}, ...Object.values(per));
     refreshChatDom(); render();
   }, () => {}));
 }
 function subscribeReactions(){
   const gq = gQuery(); if (!gq.length) return;
-  gSubs.unsub.push(db.collection("reactions").where("guilds", "array-contains-any", gq).onSnapshot(snap => {
-    S.reactions = {}; for (const d of snap.docs) S.reactions[d.id] = d.data() || {};
+  const per = {};
+  for (const gg of gq) gSubs.unsub.push(db.collection("reactions").where("guilds", "array-contains", gg).onSnapshot(snap => {
+    per[gg] = {}; for (const d of snap.docs) per[gg][d.id] = d.data() || {};
+    S.reactions = Object.assign({}, ...Object.values(per));
     bump(); render();
   }, () => {}));
 }
@@ -6274,8 +6280,9 @@ function gRanking(){
   const L = Object.keys(S.guilds || {}).map(gFull).filter(g => g && (g.st.n || 0) > 0);
   const cur = g => g.st.wk === wkNow ? g.st.xpPer || 0 : 0;
   const prv = g => g.st.wk === wkNow ? (g.st.prev?.wk === lastWk ? g.st.prev.xpPer || 0 : 0) : g.st.wk === lastWk ? g.st.xpPer || 0 : 0;
-  const prevOrder = L.slice().sort((a, b) => prv(b) - prv(a)).map(g => g.id);
-  return L.sort((a, b) => cur(b) - cur(a) || (b.st.n || 0) - (a.st.n || 0)).map((g, i) => ({...g, xp:cur(g), d:prv(g) || prevOrder.indexOf(g.id) >= 0 ? prevOrder.indexOf(g.id) - i : 0}));
+  /* ▲▼ only for guilds that also had a score last week */
+  const prevOrder = L.filter(g => prv(g) > 0).sort((a, b) => prv(b) - prv(a)).map(g => g.id);
+  return L.sort((a, b) => cur(b) - cur(a) || (b.st.n || 0) - (a.st.n || 0)).map((g, i) => ({...g, xp:cur(g), d:prevOrder.includes(g.id) ? prevOrder.indexOf(g.id) - i : 0}));
 }
 /* any member keeps the guild's public summary fresh (other guilds only ever see this) */
 function publishGuildStats(){
@@ -6530,7 +6537,8 @@ async function gsAction(a, ctx, btn){
     catch(e){ out.textContent = "Chyba: " + (e?.code || e?.message || ""); }
     return;
   }
-  if (a === "enter"){ const sp = $("#splash"); sp?.classList.add("out"); setTimeout(() => sp?.remove(), 600); S.tab = "arena"; S.arenaTab = "duel"; render(); }
+  /* after the welcome a brand new player still picks a nickname and crest on the usual entry screen */
+  if (a === "enter"){ const sp = $("#splash"); sp?.classList.add("out"); setTimeout(() => { sp?.remove(); if (needNick()) showSplash(); }, 600); S.tab = "arena"; S.arenaTab = "duel"; render(); }
 }
 function showWelcome(g){
   const doc = gDoc(g) || {}, n = gMembers(g).length, wkNow = weekStart(Date.now());
@@ -6545,7 +6553,7 @@ function subscribeOwn(){
     for (const k of ["guild", "guilds", "ghist", "joinedAt"]) if (data[k] !== undefined) p[k] = data[k];
     bump(); resubscribeGuild(); render(); }, () => {});
 }
-const gQuery = () => { const p = me(); return (p?.guilds || (p && p.guilds === undefined ? [LEGACY_G] : [])).slice(-10); };
+const gQuery = () => { const p = me(); return (p?.guilds || (p && p.guilds === undefined ? [LEGACY_G] : [])).slice(-5); };
 async function afterStart(){
   /* the owner moves the old party into its first guild once */
   if (S.isOwner && me()?.guilds === undefined) await migrateLegacy();
