@@ -3228,6 +3228,13 @@ button.cday{border:0;padding:0;font:inherit;cursor:pointer;-webkit-tap-highlight
 .crow .cbg .cbl svg{width:13px;height:13px}
 .crow .cbg .cbl{color:#e8d6a8}.crow .cbg .cbl.fg{border-color:rgba(224,102,42,.6);color:#ffb45e}
 .crow.haspr{background:linear-gradient(90deg,rgba(179,145,80,.07),transparent 60%)}
+.invp{font-size:13px;color:var(--muted);line-height:1.5;margin:0 0 12px}
+.invs input{width:100%;box-sizing:border-box;padding:12px;background:var(--panel2);border:1px solid var(--line2);color:var(--fg);font:15px var(--f-body)}
+.invb{width:100%;margin-top:10px}
+.invok{margin-top:12px;font-size:13px;color:#a9c27a;line-height:1.45}
+.invalt{margin-top:18px;padding-top:12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--dim)}
+.invalt button{padding:9px 12px;background:none;border:1px solid var(--line);color:var(--muted);font-size:12.5px;text-align:left}
+.invalt b{color:var(--brass2);letter-spacing:.12em}
 .acct{display:flex;flex-direction:column;gap:6px;margin:6px 0 4px}
 .acct button{width:100%;padding:9px 12px;background:none;border:1px solid var(--line);color:var(--muted);font-size:12px;text-align:left}
 .acct button b{color:var(--brass2);letter-spacing:.12em}
@@ -3374,9 +3381,11 @@ function start(u, pid){
   }};
   /* small extras the app can call: invite a new friend, sign out */
   window.IQ = {
+    inviteEmail: async email => { const em = String(email || "").trim().toLowerCase(); await setDoc(doc(fs, "invites/" + em), {by:pid, t:Date.now()}); return em; },
     invite: async () => { const code = newCode(); await setDoc(doc(fs, "claims/" + code), {pid:null, nick:"", claimedBy:null, by:pid, t:Date.now()}); return code; },
     signOut: async () => { await signOut(auth); location.reload(); },
-    email: u.email
+    email: u.email,
+    invites: false   /* e-mail invites go live together with guilds (needs the new database rules) */
   };
   window.__iqReady();
 }
@@ -3387,7 +3396,11 @@ onAuthStateChanged(auth, async u => {
   if (!u) { signInView(); return; }
   try {
     const m = await getDoc(doc(fs, "uidmap/" + u.uid));
-    if (m.exists() && m.data().pid) start(u, m.data().pid); else codeView(u);
+    if (m.exists() && m.data().pid) { start(u, m.data().pid); return; }
+    /* invited by e-mail: let them straight in with a fresh profile */
+    const em = (u.email || "").toLowerCase(), inv = em ? await getDoc(doc(fs, "invites/" + em)).catch(() => null) : null;
+    if (inv?.exists()) { await setDoc(doc(fs, "uidmap/" + u.uid), {pid:u.uid, code:"email", t:Date.now()}); start(u, u.uid); return; }
+    codeView(u);
   } catch (e) { codeView(u, "Nepodařilo se načíst profil: " + (e?.code || "")); }
 });
 </script>
@@ -5990,6 +6003,17 @@ function profilePreview(p){
   } finally { Object.assign(p, keep); }
   return out;
 }
+/* owner: invite a friend by e-mail (they get in with that Google account), or make a one-time code */
+function inviteSheet(){
+  const v = S.inv || {};
+  return `<div class="scrim"><div class="sheet invs"><div class="sheethead"><h3>Pozvat kámoše</h3><button class="x" data-act="close" aria-label="Zavřít">×</button></div>
+    <p class="invp">Napiš e-mail, kterým se kámoš přihlašuje do Googlu. Appka ho pak pustí rovnou do party a otevře se ti připravená zpráva s odkazem.</p>
+    <input id="invEmail" type="email" inputmode="email" autocomplete="off" placeholder="kamos@gmail.com" value="">
+    <button class="btn btn-fire invb" data-act="invsend">Pozvat e-mailem</button>
+    ${v.sent ? `<div class="invok">✓ Pozvánka pro <b>${esc(v.sent)}</b> je uložená. Pokud se zpráva neotevřela, pošli mu odkaz na appku sám.</div>` : ""}
+    <div class="invalt"><span>Nemá po ruce e-mail?</span>${v.code ? `<button class="invc" data-act="invcopy">Zvací kód: <b>${esc(v.code)}</b> · kopírovat</button>` : `<button data-act="invcode">Vytvořit jednorázový kód</button>`}</div>
+  </div></div>`;
+}
 function pviewSheet(id){
   const ps = P(), p = ps[id], st = allStats()[id]; if (!p || !st) return "";
   const L = st.lvl, m0 = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
@@ -6024,7 +6048,7 @@ function profileSheet(){
     <div class="flabel">Symbol erbu <small style="text-transform:none;letter-spacing:0;color:var(--dim)">· ${tier[2].toLowerCase()} rám${nt ? `, od levelu ${nt[0]} ${nt[2].toLowerCase()}` : ""}</small></div>
     <div class="hscroll">${crestPicker(S.draftCrest ?? crestOf(p), "pcrest")}</div>
     ${(() => { const st = myStats(), ts = (st.cos||[]).filter(id => COSM[id]?.kind.startsWith("Titul")), cur = S.draftTitle ?? (p.title || ""); return ts.length ? `<div class="flabel" style="margin-top:14px">Titul pod jménem</div><div class="ttlpick"><button class="chip sm" data-act="ptitle" data-id="" aria-pressed="${!cur}">Podle tréninků</button>${ts.map(id => `<button class="chip sm" data-act="ptitle" data-id="${id}" aria-pressed="${cur === id}">${esc(COSM[id].n)}</button>`).join("")}</div>` : ""; })()}
-    ${vitrine(myStats())}<button class="verrow" data-act="news"><span>Iron Quest · verze ${APP_VER}</span><b>Novinky a opravy ›</b></button>${window.IQ ? `<div class="acct">${S.isOwner ? `<button data-act="invite">${S.inviteCode ? `Zvací kód: <b>${esc(S.inviteCode)}</b>` : "Pozvat kámoše"}</button>` : ""}<button data-act="logout">Odhlásit · ${esc(window.IQ.email || "")}</button></div>` : ""}`
+    ${vitrine(myStats())}<button class="verrow" data-act="news"><span>Iron Quest · verze ${APP_VER}</span><b>Novinky a opravy ›</b></button>${window.IQ ? `<div class="acct">${S.isOwner && window.IQ.invites ? `<button data-act="invite">Pozvat kámoše</button>` : ""}<button data-act="logout">Odhlásit · ${esc(window.IQ.email || "")}</button></div>` : ""}`
   : tab === "ward" ? wardrobe(p)
   : `    <div class="flabel" style="margin:16px 0 4px">Týdenní plán</div>
     ${order.map(d => `<div class="dayrow"><div class="dn">${DAYS[d]}</div><div class="chips">${PARTS.map(x => `<button class="chip sm" data-act="pday" data-d="${d}" data-id="${x.id}" aria-pressed="${(dp.days[d]||[]).includes(x.id)}">${x.name}</button>`).join("")}${(dp.days[d]||[]).length ? `<button class="chip sm homechip" data-act="phome" data-d="${d}" aria-pressed="${!!dp.home?.[d]}">Doma</button>` : ""}</div></div>`).join("")}
@@ -7285,13 +7309,17 @@ function checkForge(){
   /* the weekly champion is only known once everyone's workouts are in, partial data could crown the wrong person */
   const allIn = allLoaded();
   if (allIn){ const st0 = myStats(); if (st0.isChamp && st0.champWk && uiGet("iq.champ") !== st0.champWk){ uiSet("iq.champ", st0.champWk); S.sheet = {type:"champ"}; return; } }
+  /* level and crest tier also count arena and boss XP, which need everyone's data: until it is all in, the level
+     looks lower than it is, and storing that would replay the level-up popup on every start */
+  if (!allIn) return;
   const lv = myStats().lvl.level, lp = uiGet("iq.lvl");
   if (lp != null && lv > lp && !CREST_TIERS.some(t => t[0] === lv)){ uiSet("iq.lvl", lv); S.sheet = {type:"lvlup", level:lv}; return; }
-  if (lp !== lv) uiSet("iq.lvl", lv);
+  if (lp == null || lv > lp) uiSet("iq.lvl", lv);
   const t = crestTier(myStats().lvl.level), prev = uiGet("iq.tier");
   if (prev === t[1]) return;
-  uiSet("iq.tier", t[1]);
   const order = CREST_TIERS.map(x => x[1]);
+  if (prev != null && order.indexOf(t[1]) < order.indexOf(prev)) return;
+  uiSet("iq.tier", t[1]);
   if (prev != null && order.indexOf(t[1]) > order.indexOf(prev)) S.sheet = {type:"forge", tier:t};
 }
 /* ---- loot chests ---- */
@@ -7378,6 +7406,7 @@ function sheetHTML(){
   if (sh.type === "activity") return activitySheet();
   if (sh.type === "profile") return profileSheet();
   if (sh.type === "pview") return pviewSheet(sh.ex);
+  if (sh.type === "invite") return inviteSheet();
   if (sh.type === "guide") return guideSheet(sh);
   if (sh.type === "news") return newsSheet(sh);
   if (sh.type === "loot") return lootSheet(sh);
@@ -7861,8 +7890,25 @@ document.addEventListener("click", async e => {
     case "lootev": if (S.sheet) S.sheet.ev = id; render(); break;
     case "guide": S.guideOpen = id || ({trenink:"trenink", svaly:"svaly", boss:"boss", arena:"arena", kniha:"kniha"})[S.tab] || "trenink"; S.guideSet = new Set([S.guideOpen]); S.sheet = {type:"guide", id:S.guideOpen}; render(); break;
     case "news": S.sheet = {type:"news", all:true}; render(); break;
-    case "invite": if (!window.IQ || !S.isOwner) break; if (S.inviteCode){ try { navigator.clipboard.writeText(S.inviteCode); toast("Kód zkopírován"); } catch {} break; }
-      window.IQ.invite().then(c => { S.inviteCode = c; render(); toast("Kód vytvořen. Ťukni na něj pro zkopírování."); }).catch(() => toast("Kód se nepovedlo vytvořit.")); break;
+    case "invite": if (!window.IQ || !S.isOwner) break; S.inv = {}; S.sheet = {type:"invite"}; render(); break;
+    case "invsend": { const em = ($("#invEmail")?.value || "").trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ toast("Zadej platný e-mail."); break; }
+      window.IQ.inviteEmail(em).then(e2 => { S.inv = {sent:e2}; render();
+        const body = `Ahoj,
+
+zvu tě do Iron Quest – našeho herního deníku z posilovny 💪
+
+1. Otevři https://mzelivsky-spec.github.io/iron_quest/
+2. Přihlas se přes Google účtem ${e2}
+3. A jsi rovnou v partě.
+
+Appku si pak dej na plochu: v Safari Sdílet → Přidat na plochu, na Androidu v Chromu ⋮ → Přidat na plochu.
+
+${(me()?.nick || "").trim() || "Milan"}`;
+        location.href = `mailto:${encodeURIComponent(e2)}?subject=${encodeURIComponent("Pozvánka do Iron Quest")}&body=${encodeURIComponent(body)}`;
+      }).catch(() => toast("Pozvánku se nepovedlo uložit.")); break; }
+    case "invcode": window.IQ.invite().then(c => { S.inv = {code:c}; render(); }).catch(() => toast("Kód se nepovedlo vytvořit.")); break;
+    case "invcopy": try { navigator.clipboard.writeText(S.inv?.code || ""); toast("Kód zkopírován"); } catch {} break;
     case "logout": ask("Odhlásit se?", "Na tomhle zařízení se pak přihlásíš znovu přes Google. Data zůstanou uložená.", "Odhlásit", () => window.IQ?.signOut()); break;
     case "radr": S.radR = id || null; render(); break;
     case "pvcmp": S.pvCmp = !S.pvCmp; render(); break;
