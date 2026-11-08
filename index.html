@@ -3408,6 +3408,21 @@ h2.sec.hsec + .chestbar, h2.sec.hsec + .evban, h2.sec.hsec + .report, h2.sec.hse
 .unl-l svg{width:15px;height:15px;display:block}
 .nav button.locked{opacity:.35}
 .nav button.navboss.locked .mslot{filter:grayscale(1) brightness(.6)}
+
+.st-wk{padding:12px 14px}
+.st-wk .st-verdict{margin:0 0 10px}
+.st-wk .st-grid{gap:6px}
+.st-wk .sv{padding:9px 8px;background:rgba(255,240,220,.035);border:1px solid var(--line);border-bottom-color:var(--line)}
+.st-wk .sv .k{font-size:9.5px}
+.st-wk .sv b{font-size:19px;color:#efe3cc}
+.st-wk .sv .d{font-size:11px;color:var(--dim)}
+.status + h2.sec.hsec{margin-top:22px}
+.st-notes2{margin-top:14px}
+/* Síla: filtr partií jako tenký posuvný řádek */
+.spf{display:flex!important;flex-wrap:nowrap;overflow-x:auto;gap:6px!important;margin:0 -14px 14px!important;padding:0 14px 2px;scrollbar-width:none}
+.spf::-webkit-scrollbar{display:none}
+.spf button{flex:none;flex-direction:row!important;gap:6px!important;padding:6px 12px!important;font-size:12.5px!important;border-radius:999px;background:transparent}
+.spf button svg{width:15px!important;height:15px!important}
 </style>
 
 </head>
@@ -5291,8 +5306,14 @@ function guideSheet(sh){
 }
 
 /* ===== Co je nového: version + short release notes ===== */
-const APP_VER = 97;
+const APP_VER = 98;
 const NEWS = [
+  {v:98, d:"8. 11.", t:"Přehlednější Kniha", items:[
+    ["Pět záložek", "Kniha má teď Přehled, Sílu, Tělo, Docházku a Odznaky. Každá je přesně o tom, co říká název."],
+    ["Tělo", "Tělesná váha a vyváženost těla: jak rovnoměrně cvičíš tah, tlak, nohy a střed."],
+    ["Docházka", "Nová záložka: kalendář tréninků, čas a tituly a souhrnné statistiky."],
+    ["Přehled", "Level, tento týden a tipy jsou oddělené. U čísel týdne vidíš, kolik to bylo minule."],
+    ["Síla", "Filtr partií je tenký posuvný řádek nad rekordy."]]},
   {v:97, d:"8. 11.", t:"Přehlednější Trénink", items:[
     ["Trénink nahoře", "Dnešní výprava je samostatná karta úplně nahoře. Pod ní jsou Události, Přehled týdne, Výzva týdne a Poslední tréninky."],
     ["Pro nováčky", "Kdo začíná, dostává věci postupně: boss, kniha a svaly se odemknou po prvním tréninku, výzva týdne na levelu 2. Počítá se všechno od první série."]]},
@@ -7078,7 +7099,8 @@ function tabKniha(){
   return icoTabs("booktab", cur, [
     ["over","Přehled",'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',"Tvůj týden, plán a jak jsi na tom."],
     ["str","Síla",'<path d="M6 8v8M3 10v4M18 8v8M21 10v4M6 12h12"/>',"Váhy na cvicích a tvoje rekordy."],
-    ["body","Tělo",'<circle cx="12" cy="5" r="2.5"/><path d="M6 10h12M12 10v5M9 21l3-6 3 6"/>',"Tvoje váha, docházka a čas v posilovně."],
+    ["body","Tělo",'<circle cx="12" cy="5" r="2.5"/><path d="M6 10h12M12 10v5M9 21l3-6 3 6"/>',"Tvoje váha a jak rovnoměrně cvičíš celé tělo."],
+    ["att","Docházka",'<rect x="4" y="5" width="16" height="15" rx="1"/><path d="M4 10h16M9 3v4M15 3v4"/>',"Kdy a jak často cvičíš, čas v posilovně a tituly."],
     ["badges","Odznaky",'<circle cx="12" cy="14" r="6"/><path d="M9 3l3 5 3-5M12 11l1 2 2 .3-1.5 1.4.4 2.1-1.9-1-1.9 1 .4-2.1L9 13.3l2-.3z"/>',"Za co je dostaneš a co ti chybí do dalších."]]) + (t === "badges" ? tabOdznaky() : tabStats());
 }
 
@@ -7469,7 +7491,7 @@ function partsCard(st){
   const maxP = Math.max(1, ...PARTS.map(x => g(x.id) + (pAct[x.id]||0)));
   const col = id => grp.find(x => ({zada:"Tah",biceps:"Tah",prsa:"Tlak",ramena:"Tlak",triceps:"Tlak",nohy:"Nohy",bricho:"Střed"})[id] === x.n).c;
   const anyAct = PARTS.some(x => pAct[x.id] > 0);
-  return `<h2 class="sec">Partie <small>30 dní · série</small></h2>
+  return `<h2 class="sec">Vyváženost těla <small>30 dní · série</small></h2>
   <div class="card bal">
     <div class="balbar">${grp.map(x => `<i style="flex:${x.v || .0001};background:${x.c}"></i>`).join("")}</div>
     <div class="balk">${grp.map(x => `<span><i style="background:${x.c}"></i>${x.n} <b class="num">${Math.round(x.v/tot*100)} %</b></span>`).join("")}</div>
@@ -7764,7 +7786,7 @@ function statusCard(p, st){
   const agg = (a, b) => { const ws = (p.workouts||[]).filter(w => w.date >= a && w.date < b), g = ws.filter(isGym);
     return {s:ws.length, vol:g.reduce((x,w) => x + workSets(w).reduce((y,s) => y + setVol(s), 0), 0), sets:g.reduce((x,w) => x + workSets(w).length, 0), prs:g.reduce((x,w) => x + workSets(w).filter(s => s.pr).length, 0)}; };
   const A = agg(wk, now + 1), B = agg(lwStart, lwCut);
-  const tile = (k, a, b, f) => { const d = a - b; return `<div class="sv"><span class="k">${k}</span><b class="num">${f(a)}</b><span class="d ${d > 0 ? "up" : d < 0 ? "down" : ""}">${!a && !b ? "—" : d > 0 ? "▲ +" + f(d) : d < 0 ? "▼ " + f(-d) : "= stejně"}</span></div>`; };
+  const tile = (k, a, b, f) => `<div class="sv"><span class="k">${k}</span><b class="num">${f(a)}</b><span class="d">minule ${f(b)}</span></div>`;
   const score = [A.s - B.s, A.vol - B.vol, A.sets - B.sets].reduce((x,d) => x + Math.sign(d), 0);
   const left = 7 - ((new Date().getDay() + 6) % 7);
   const verdict = !A.s && !B.s ? "Týden je čistý list. První výprava rozhodne." : score > 0 ? "Jedeš líp než minulý týden ve stejný den." : score < 0 ? `Zatím pod minulým týdnem. Máš ještě ${left} ${plural(left,"den","dny","dní")}.` : "Držíš tempo minulého týdne.";
@@ -7776,13 +7798,17 @@ function statusCard(p, st){
   return `<div class="status">
     <div class="st-top"><div class="st-lv"><span class="lb2">Level</span><b class="num">${L.level}</b></div>
       <div class="st-main"><div class="st-rk">${rankOf(L.level)} · ${mainTitle(st, p)}</div><div class="cbar"><i style="width:${pct.toFixed(1)}%"></i></div><div class="cmp num">${fmt(L.need - L.into)} XP do levelu ${L.level + 1}${st.streak ? ` · <span style="color:var(--ember)">${st.streak} ${plural(st.streak,"týden","týdny","týdnů")} v řadě</span>` : ""}</div></div></div>
+  </div>
+  <h2 class="sec hsec">Tento týden</h2>
+  <div class="status st-wk">
     <div class="st-verdict">${verdict}</div>
     <div class="st-grid">${tile("Výpravy", A.s, B.s, v => fmt(v))}${tile("Naloženo", A.vol, B.vol, v => tons(v))}${tile("Série", A.sets, B.sets, v => fmt(v))}${tile("Osobáky", A.prs, B.prs, v => fmt(v))}</div>
-    <div class="st-notes2">
+  </div>
+  <div class="st-notes2">
       ${strongest && st.partXP[strongest.id] ? `<div class="sn2 good"><i>💪</i><div>Nejvíc ti jdou <b>${strongest.name.toLowerCase()}</b><small>level partie ${levelFrom(st.partXP[strongest.id]||0, 100, 50).level} · titul ${partTitle(strongest.id, levelFrom(st.partXP[strongest.id]||0, 100, 50).level)}</small></div></div>` : ""}
       ${neglected && rest[neglected.id] >= 4 ? `<div class="sn2 warn"><i>⚠️</i><div><b>${neglected.name}</b> necvičíš už <b>${rest[neglected.id]} ${plural(rest[neglected.id],"den","dny","dní")}</b><small>máš je v plánu, nezapomeň na ně</small></div></div>` : ""}
       ${nb ? (() => { const [what, unit] = nb.f.d.split(", "), left = nb.nx - nb.v; return `<div class="sn2"><i>🏅</i><div>Ještě <b>${fmt(left, left % 1 ? 1 : 0)}${unit ? " " + (unit === "tuny" ? "t" : unit) : ""}</b> do odznaku <b>${esc(nb.f.n)} · ${TIERS[nb.t][0].toLowerCase()}</b><small>${esc(what)}: ${fmt(nb.v, nb.v % 1 ? 1 : 0)} z ${fmt(nb.nx)}</small></div></div>`; })() : ""}
-    </div></div>`;
+    </div>`;
 }
 function recordHall(p){
   const best = {};
@@ -7891,7 +7917,8 @@ function tabStats(){
 `;
   if (tab === "body") return tabs + `
   ${weightCard(p)}
-  ${partsCard(st)}
+  ${partsCard(st) || `<h2 class="sec">Vyváženost těla</h2><div class="card empty">Po prvních trénincích tu uvidíš, jak rovnoměrně cvičíš tah, tlak, nohy a střed.</div>`}`;
+  if (tab === "att") return tabs + `
   ${attendCard(st)}
   ${timeCard(st)}
   <div class="tiles">
