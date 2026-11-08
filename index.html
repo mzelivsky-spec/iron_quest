@@ -6465,6 +6465,25 @@ function subscribeGuilds(){
   }, () => {});
 }
 /* ---- one-time move of the old party into the first guild (runs once, from the owner's app) ---- */
+/* stará verze appky (bez guild) mohla hráči přepsat profil bez polí guildy – správce je vrátí */
+const LEGACY_IDS = ["u_xmuZJdlg7vHe1xS8VtEKjg", "u_Bwj7j8je234NxBnbKUqelg", "u_aZr00mMdesMmcW65yY2byg", "u_fRnCmUx8gvKKAOgPeLQP6w", "u_c11GzFiOrmOLwfSWE1PhKg"];
+async function repairLegacy(){
+  if (!window.IQA || S.mode !== "db") return;
+  const ops = [], fixed = [];
+  for (const id of LEGACY_IDS){
+    const p = await window.IQA.get("players/" + id).catch(() => null);
+    if (p?.exists && p.data && p.data.guilds === undefined){
+      ops.push({op:"merge", path:"players/" + id, data:{guild:LEGACY_G, guilds:[LEGACY_G], ghist:[{g:LEGACY_G, from:0}]}}); fixed.push(p.data.nick || id);
+    }
+    for (const k of ["chat", "reactions"]){
+      const d = await window.IQA.get(k + "/" + id).catch(() => null);
+      if (d?.exists && d.data && d.data.guilds === undefined) ops.push({op:"merge", path:k + "/" + id, data:{guilds:[LEGACY_G]}});
+    }
+  }
+  if (!ops.length) return;
+  await window.IQA.batch(ops);
+  if (fixed.length){ toast(`Vráceno do guildy: ${fixed.join(", ")}`); resubscribeGuild?.(); }
+}
 async function migrateLegacy(){
   if (!S.isOwner || me()?.guild || migrateLegacy.done) return;
   migrateLegacy.done = true;
@@ -6658,6 +6677,7 @@ function subscribeOwn(){
 const gQuery = () => { const p = me(); return (p?.guilds || (p && p.guilds === undefined ? [LEGACY_G] : [])).slice(-5); };
 async function afterStart(){
   pushInit();
+  if (S.isOwner) repairLegacy().catch(e => console.warn(e));
   /* the owner moves the old party into its first guild once */
   if (S.isOwner && me()?.guilds === undefined) await migrateLegacy();
   let pend = null; try { pend = JSON.parse(localStorage.getItem("iq.pendJoin") || "null"); } catch {}
