@@ -3393,6 +3393,8 @@ html:not(.lupa) .scrim .sheet, html:not(.lupa) .scrim .sheet *{touch-action:pan-
 html[style*="--z"] .brand .iq-word{font-size:clamp(27px,calc(10.5vw / var(--z, 1)),44px)}
 html[style*="--z"] .hero .nick{flex:0 0 auto;max-width:58%}
 html[style*="--z"] .hero .rk{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+/* iPhone: boss v liště nesmí klesnout o výšku spodního proužku (home indikátor) */
+.nav .navboss .medal-b{bottom:-12px}
 
 .qframe{position:relative;margin:8px -6px 0}
 .quest{margin:0;padding:18px 14px 16px;border:1px solid var(--line2);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 14px 34px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,220,160,.06)}
