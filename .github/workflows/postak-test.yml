@@ -1,0 +1,27 @@
+name: Pošli zkušební oznámení
+on:
+  workflow_dispatch:
+    inputs:
+      komu:
+        description: "Komu (přezdívka v appce)"
+        default: "MilusPCZ"
+        required: true
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: postak
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm install --omit=dev --no-audit --no-fund
+      - run: node test.mjs
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+          KOMU: ${{ inputs.komu }}
