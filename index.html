@@ -3393,6 +3393,21 @@ html:not(.lupa) .scrim .sheet, html:not(.lupa) .scrim .sheet *{touch-action:pan-
 html[style*="--z"] .brand .iq-word{font-size:clamp(27px,calc(10.5vw / var(--z, 1)),44px)}
 html[style*="--z"] .hero .nick{flex:0 0 auto;max-width:58%}
 html[style*="--z"] .hero .rk{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+
+.qframe{position:relative;margin:8px -6px 0}
+.quest{margin:0;padding:18px 14px 16px;border:1px solid var(--line2);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 14px 34px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,220,160,.06)}
+.quest .eyebrow{font-size:12.5px}
+.quest .qparts{font-size:14.5px}
+h2.sec{font-size:12.5px;color:#cbbfa9}
+h2.sec.hsec{margin-top:28px}
+h2.sec.hsec + .chestbar, h2.sec.hsec + .evban, h2.sec.hsec + .report, h2.sec.hsec + .bossrow, h2.sec.hsec + .alert{margin-top:0}
+.unl{display:grid;gap:6px}
+.unl-i{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px dashed var(--line2);color:var(--dim)}
+.unl-i b{flex:1;font-weight:500;font-size:13.5px;color:var(--muted)}
+.unl-i small{font-size:12px}
+.unl-l svg{width:15px;height:15px;display:block}
+.nav button.locked{opacity:.35}
+.nav button.navboss.locked .mslot{filter:grayscale(1) brightness(.6)}
 </style>
 
 </head>
@@ -5276,8 +5291,11 @@ function guideSheet(sh){
 }
 
 /* ===== Co je nového: version + short release notes ===== */
-const APP_VER = 96;
+const APP_VER = 97;
 const NEWS = [
+  {v:97, d:"8. 11.", t:"Přehlednější Trénink", items:[
+    ["Trénink nahoře", "Dnešní výprava je samostatná karta úplně nahoře. Pod ní jsou Události, Přehled týdne, Výzva týdne a Poslední tréninky."],
+    ["Pro nováčky", "Kdo začíná, dostává věci postupně: boss, kniha a svaly se odemknou po prvním tréninku, výzva týdne na levelu 2. Počítá se všechno od první série."]]},
   {v:96, d:"8. 11.", t:"Oznámení a nová ikona", items:[
     ["Oznámení", "Appka ti dá vědět, když tě kluci hecují, reagují na tvůj trénink, jdou do fitka, boss má posledních 10 % nebo padne a když začne event. Zapneš je v Profilu → Oznámení."],
     ["iPhone", "Oznámení fungují, jen když máš appku na ploše: Safari → Sdílet → Přidat na plochu."],
@@ -6090,6 +6108,7 @@ function reportCard(){
   if ((S.demo ? S.reportSeen : uiGet("iq.report")) === lw) return "";
   const ps = P(), all = allStats(), mine = meId(), A = all[mine]; if (!A) return "";
   const B = A.weeks[lw], boss = WORLD.bosses.find(x => x.wk === lw);
+  if (!B && (me().joinedAt || me().created || 0) > lw + 7*DAY) return "";
   const ids = Object.keys(ps).filter(id => (all[id]?.weekXP?.[lw] || 0) > 0);
   if (!B && !boss) return "";
   const top = ids.slice().sort((a,b) => all[b].weekXP[lw] - all[a].weekXP[lw])[0];
@@ -6140,6 +6159,33 @@ function partGrid(p, sel){
   </div>`;
 }
 const swordIco = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4l-1 3.6L10.6 16 8 13.4 16.4 5z"/><path d="M6.6 11.6l5.8 5.8M8.8 15.2l-4 4"/><circle cx="4.2" cy="19.8" r="1"/></svg>';
+/* co nováček už vidí. Počítá se vždy všechno, schovává se jen zobrazení. */
+const UNL = [
+  ["boss", "Boss týdne", "po 1. tréninku"], ["kniha", "Kniha bitev", "po 1. tréninku"], ["svaly", "Svaly", "po 1. tréninku"],
+  ["vyzva", "Výzva týdne", "na levelu 2"]];
+function unlocked(k){
+  if (S.mode !== "db" || S.demo) return true;
+  const n = workoutsOf(me()).length, L = myStats()?.lvl?.level || 1;
+  if (k === "boss" || k === "kniha" || k === "svaly") return n >= 1;
+  if (k === "vyzva") return L >= 2 || n >= 3;
+  return true;
+}
+const TAB_UNL = {boss:"boss", kniha:"kniha", svaly:"svaly"};
+function unlockCheck(){
+  if (S.mode !== "db" || S.demo || !allLoaded()) return;
+  const now = UNL.filter(([k]) => unlocked(k)).map(([k]) => k), seen = lsGet("iq.unl");
+  if (!seen){ lsSet("iq.unl", now); return; }
+  const fresh = now.filter(k => !seen.includes(k));
+  if (!fresh.length) return;
+  lsSet("iq.unl", now);
+  const msg = "Odemčeno: " + fresh.map(k => UNL.find(x => x[0] === k)[1]).join(", ") + " ⚔️";
+  const show = () => document.querySelector(".scrim, #splash") ? setTimeout(show, 700) : toast(msg);
+  setTimeout(show, 400);
+}
+function lockedStrip(){
+  const l = UNL.filter(([k]) => !unlocked(k)); if (!l.length) return "";
+  return `<h2 class="sec hsec">Brzy odemkneš</h2><div class="unl">${l.map(([k, n, w]) => `<div class="unl-i"><span class="unl-l">${GI('<rect x="5" y="11" width="14" height="9" rx="1"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>')}</span><b>${n}</b><small>${w}</small></div>`).join("")}</div>`;
+}
 function tabTrenink(){
   if (S.session) return sessionView();
   const p = me(), st = myStats(), pl = planOf(p);
@@ -6156,7 +6202,8 @@ function tabTrenink(){
   const goLabel = !sel.length ? "Vyber partie" : fromPlan ? "Do boje" : "Bonusová výprava";
   const ch = challengeFor(weekStart(Date.now())), cv = chalValue(st.thisWeek, ch);
   const cb = curBoss(), recent = workoutsOf(p).slice(-3).reverse();
-  return `${evBanner()}${chestBar()}${adventCard()}${goalCard()}<section class="quest">
+  const evs = [chestBar(), evBanner(), adventCard(), goalCard(), unlocked("boss") ? reportCard() : ""].join("").trim();
+  return `<div class="qframe"><section class="quest">
     <div class="qhead"><span class="eyebrow">Dnešní výprava</span><span class="qday">${DAYS_LONG[dow]}${st.today ? ` · <em>zapsáno</em>` : ""}</span></div>
     <h3 class="qtitle">${esc(title)}</h3>
     <div class="qparts">${actDay ? "Pravidelná aktivita mimo fitko" : !sel.length ? "Vyber, co dnes rozpálíš" : fromPlan ? "Podle tvého plánu" : planned.length ? "Mimo plán · bonusová výprava" : "Bonusová výprava"}</div>
@@ -6174,16 +6221,17 @@ function tabTrenink(){
     </div></div>
     <button class="btn btn-fire qgo ${light?"lightmode":""} ${sel.length?"":"pick"}" data-act="go">${swordIco}${goLabel}</button>
     <div class="qlinks">${sim ? `<button data-act="repeat" data-id="${esc(sim.id)}">Zopakovat minulý</button>` : ""}<button data-act="activity">Jiná aktivita</button></div>`}
-  </section>
-  ${reportCard()}
+  </section></div>
+  ${evs ? `<h2 class="sec hsec">Události</h2>${evs}` : ""}
+  ${unlocked("boss") || st.curseNow ? `<h2 class="sec hsec">Přehled týdne</h2>` : ""}
   ${st.curseNow ? `<div class="alert curse-al"><span class="ic">${crestSVG("", {cursed:true})}</span><div><b>Prokletí: ${st.curseNow} ${plural(st.curseNow,"vynechaný den","vynechané dny","vynechaných dní")} z plánu</b>Doženeš-li to do neděle, prokletí zmizí. Jinak přijdeš o ${st.curseNow*CURSE_XP} XP.</div></div>` : ""}
-  ${cb && cb.defeated && cb.mCur ? `<button class="bossrow" style="--bc:${cb.mCur.m.c}" data-act="tab" data-id="boss">${bossHead(cb.mCur.m, "mini")}<div class="br-t"><span class="lbl">${esc(cb.b.n)} padl · přisluhovači</span><b>${esc(cb.mCur.m.n)}</b><span>${Math.max(0, Math.round((1 - cb.mCur.total/cb.mCur.hp)*100))} % života · pobito ${cb.minions.length} · +${MINION_XP} XP za každého</span></div><div class="br-hp"><i style="width:${clamp((1 - cb.mCur.total/cb.mCur.hp)*100, 0, 100).toFixed(0)}%"></i></div></button>`
-  : cb ? `<button class="bossrow" style="--bc:${cb.b.c}" data-act="tab" data-id="boss">${bossHead(cb.b, "mini")}<div class="br-t"><span class="lbl">Boss týdne</span><b>${esc(cb.b.n)}</b><span>${cb.defeated ? "Poražen" : `${Math.max(0, Math.round((1 - cb.total/cb.hp)*100))} % života · ${cb.b.combo ? "kombo" : "slabina"} ${weakTxt(cb.b)}`}</span></div><div class="br-hp"><i style="width:${clamp((1 - cb.total/cb.hp)*100, 0, 100).toFixed(0)}%"></i></div></button>` : ""}
+  ${cb && cb.defeated && cb.mCur && unlocked("boss") ? `<button class="bossrow" style="--bc:${cb.mCur.m.c}" data-act="tab" data-id="boss">${bossHead(cb.mCur.m, "mini")}<div class="br-t"><span class="lbl">${esc(cb.b.n)} padl · přisluhovači</span><b>${esc(cb.mCur.m.n)}</b><span>${Math.max(0, Math.round((1 - cb.mCur.total/cb.mCur.hp)*100))} % života · pobito ${cb.minions.length} · +${MINION_XP} XP za každého</span></div><div class="br-hp"><i style="width:${clamp((1 - cb.mCur.total/cb.mCur.hp)*100, 0, 100).toFixed(0)}%"></i></div></button>`
+  : cb && unlocked("boss") ? `<button class="bossrow" style="--bc:${cb.b.c}" data-act="tab" data-id="boss">${bossHead(cb.b, "mini")}<div class="br-t"><span class="lbl">Boss týdne</span><b>${esc(cb.b.n)}</b><span>${cb.defeated ? "Poražen" : `${Math.max(0, Math.round((1 - cb.total/cb.hp)*100))} % života · ${cb.b.combo ? "kombo" : "slabina"} ${weakTxt(cb.b)}`}</span></div><div class="br-hp"><i style="width:${clamp((1 - cb.total/cb.hp)*100, 0, 100).toFixed(0)}%"></i></div></button>` : ""}
   ${chatLine()}
-  <h2 class="sec">Výzva týdne <small>+${CHAL_XP} XP</small></h2>
-  ${challengeCard(ch, cv)}
-  <h2 class="sec">Poslední tréninky</h2>
-  ${recent.length ? `<div class="hist">${recent.map(w => histRow(w, {pid:meId()})).join("")}</div>` : emptyFirst()}`;
+  ${unlocked("vyzva") ? `<h2 class="sec">Výzva týdne <small>+${CHAL_XP} XP</small></h2>
+  ${challengeCard(ch, cv)}` : ""}
+  ${recent.length ? `<h2 class="sec hsec">Poslední tréninky</h2><div class="hist">${recent.map(w => histRow(w, {pid:meId()})).join("")}</div>` : unlocked("kniha") ? `<h2 class="sec hsec">Poslední tréninky</h2>${emptyFirst()}` : ""}
+  ${lockedStrip()}`;
 }
 
 /* ================= activity sheet ================= */
@@ -8265,10 +8313,11 @@ function render(){
 }
 let lastSheetKey = "";
 function navHTML(){
+  try { unlockCheck(); } catch(e){}
   const feedNew = (Object.values(P()).some((p) => (p.workouts||[]).some(w => w.date > S.seen)) || chatMsgs().some(m => m.pid !== meId() && m.t > S.seen)) && S.tab !== "arena" && Object.keys(P()).length > 1;
   const hit = Date.now() - (S.medHit || 0) < 600;
   const evn = themeEv();
-  return `<nav class="nav">${evn ? corners(evn, "nweb") + (evn.id === "halloween" ? `<span class="nspid" aria-hidden="true">${SPIDER_SVG}</span>` : "") + (evn.id === "xmas" || evn.id === "advent" ? '<span class="lights" aria-hidden="true"></span>' : "") : ""}<div class="nedge" aria-hidden="true"><i class="l"></i><svg class="bump" viewBox="0 0 64 15"><path d="M0 14.5H6L15 1.5H49L58 14.5H64V15H0Z" fill="#0b0a0b"/><path d="M0 14.5H6L15 1.5H49L58 14.5H64" fill="none" stroke="#b39150" stroke-width="1.1" stroke-linejoin="round"/></svg><i class="r"></i></div><div class="nav-in">${TABS.map(([id,l]) => id === "boss" ? `<button class="navboss ${hit?"hit":""}" data-act="tab" data-id="boss" ${S.tab===id?'aria-current="page"':""} aria-label="Boss týdne"><span class="mslot">${medallion()}</span>${l}</button>` : `<button data-act="tab" data-id="${id}" ${S.tab===id?'aria-current="page"':""}>${ICON[id]}${l}${id==="arena" && feedNew ? '<span class="dot"></span>' : ""}</button>`).join("")}</div></nav>`;
+  return `<nav class="nav">${evn ? corners(evn, "nweb") + (evn.id === "halloween" ? `<span class="nspid" aria-hidden="true">${SPIDER_SVG}</span>` : "") + (evn.id === "xmas" || evn.id === "advent" ? '<span class="lights" aria-hidden="true"></span>' : "") : ""}<div class="nedge" aria-hidden="true"><i class="l"></i><svg class="bump" viewBox="0 0 64 15"><path d="M0 14.5H6L15 1.5H49L58 14.5H64V15H0Z" fill="#0b0a0b"/><path d="M0 14.5H6L15 1.5H49L58 14.5H64" fill="none" stroke="#b39150" stroke-width="1.1" stroke-linejoin="round"/></svg><i class="r"></i></div><div class="nav-in">${TABS.map(([id,l]) => id === "boss" ? `<button class="navboss ${hit?"hit":""} ${unlocked("boss") ? "" : "locked"}" data-act="tab" data-id="boss" ${S.tab===id?'aria-current="page"':""} aria-label="Boss týdne"><span class="mslot">${medallion()}</span>${l}</button>` : `<button class="${TAB_UNL[id] && !unlocked(TAB_UNL[id]) ? "locked" : ""}" data-act="tab" data-id="${id}" ${S.tab===id?'aria-current="page"':""}>${ICON[id]}${l}${id==="arena" && feedNew ? '<span class="dot"></span>' : ""}</button>`).join("")}</div></nav>`;
 }
 function medallion(){
   const cb = curBoss(), b = cb ? cb.b : BOSSES[0], slain = cb?.defeated, gold = slain ? "#e0c27a" : "#b39150";
@@ -8574,7 +8623,7 @@ document.addEventListener("click", async e => {
   const newexVal = $("#newex")?.value, nickVal = $("#nick")?.value ?? S.draftNick, actNameVal = $("#actname")?.value, bwVal = $("#bwin")?.value, noteVal = $("#exnote")?.value;
   if (document.activeElement?.tagName === "INPUT" && t.tagName === "BUTTON" && act !== "chatsend") document.activeElement.blur();
   switch (act){
-    case "tab": if (id === "boss") S.medHit = Date.now(); S.tab = id; lsSet("iq.tab", id); if (id === "arena"){ S.seen = Date.now(); lsSet("iq.seen", S.seen); } render(); window.scrollTo(0,0); break;
+    case "tab": if (TAB_UNL[id] && !unlocked(TAB_UNL[id])){ const u = UNL.find(x => x[0] === TAB_UNL[id]); toast(`${u[1]} se odemkne ${u[2]}.`); break; } if (id === "boss") S.medHit = Date.now(); S.tab = id; lsSet("iq.tab", id); if (id === "arena"){ S.seen = Date.now(); lsSet("iq.seen", S.seen); } render(); window.scrollTo(0,0); break;
     case "plan": S.planSel = S.planSel.includes(id) ? S.planSel.filter(x => x !== id) : [...S.planSel, id]; S.editParts = true; render(); break;
     case "mood": S.mood = id; render(); break;
     case "loc": S.loc = id; lsSet("iq.loc", id); render(); break;
