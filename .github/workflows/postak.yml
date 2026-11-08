@@ -1,15 +1,20 @@
 name: Pošťák (oznámení)
+# Pošťák běží ve smyčce skoro 6 hodin a každou minutu zkontroluje frontu.
+# Před koncem spustí sám sebe znovu. Plán (cron) je jen záloha, kdyby se řetěz přerušil.
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "17 */3 * * *"
   workflow_dispatch:
+permissions:
+  actions: write
+  contents: read
 concurrency:
   group: postak
   cancel-in-progress: false
 jobs:
   send:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 355
     defaults:
       run:
         working-directory: postak
@@ -22,3 +27,9 @@ jobs:
       - run: node send.mjs
         env:
           FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+          LOOP_MIN: "340"
+      - name: Spustit další kolo
+        if: success()
+        run: gh workflow run postak.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}
