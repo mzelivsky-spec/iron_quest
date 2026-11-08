@@ -3423,6 +3423,14 @@ h2.sec.hsec + .chestbar, h2.sec.hsec + .evban, h2.sec.hsec + .report, h2.sec.hse
 .spf::-webkit-scrollbar{display:none}
 .spf button{flex:none;flex-direction:row!important;gap:6px!important;padding:6px 12px!important;font-size:12.5px!important;border-radius:999px;background:transparent}
 .spf button svg{width:15px!important;height:15px!important}
+
+.wk3 small.gl2{font-size:11px;color:var(--muted);margin-top:1px}
+.wk3 small.gl2.ok{color:var(--good)}
+.bwmeta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--dim);margin:-2px 0 10px}
+.bwmeta b{color:var(--fg);font-weight:500}
+.bwgoalbtn{display:block;margin:0 auto 10px;font-size:12.5px}
+.chart .goal-l{stroke:var(--good);stroke-width:1;stroke-dasharray:4 4;opacity:.8}
+.chart .goal-t{fill:var(--good);font-size:9.5px}
 </style>
 
 </head>
@@ -4288,7 +4296,7 @@ const badgeLabel = k => k.startsWith("S|") ? k.slice(2) + " (tajný)" : k.split(
 
 /* ================= persistence ================= */
 function saveLocal(){ if (S.mode === "local") lsSet("iq.local", S.players); bump(); }
-function playerBody(p){ return {nick:p.nick||"Hráč", ...(p.crest ? {crest:p.crest} : {}), ...(p.nickSet ? {nickSet:true} : {}), custom:p.custom||[], created:p.created||Date.now(), plan:p.plan||null, notes:p.notes||{}, bw:(p.bw||[]).slice(-365), ...(p.h ? {h:p.h} : {}), ...(p.sex ? {sex:p.sex} : {}), ...(p.title ? {title:p.title} : {}), ...(p.wear ? {wear:p.wear} : {}), ...(p.goal ? {goal:p.goal} : {}), ...(p.chests?.length ? {chests:p.chests.slice(-400)} : {}), ...(p.live ? {live:p.live} : {}), ...(p.draft ? {draft:p.draft} : {}), ...(p.ui ? {ui:p.ui} : {}), ...(p.guilds ? {guild:p.guild || null, guilds:p.guilds, ghist:p.ghist || []} : {}), ...(p.joinedAt ? {joinedAt:p.joinedAt} : {}), ...(p.joinCode ? {joinCode:p.joinCode} : {})}; }
+function playerBody(p){ return {nick:p.nick||"Hráč", ...(p.crest ? {crest:p.crest} : {}), ...(p.nickSet ? {nickSet:true} : {}), custom:p.custom||[], created:p.created||Date.now(), plan:p.plan||null, notes:p.notes||{}, bw:(p.bw||[]).slice(-365), ...(p.h ? {h:p.h} : {}), ...(p.sex ? {sex:p.sex} : {}), ...(p.title ? {title:p.title} : {}), ...(p.wear ? {wear:p.wear} : {}), ...(p.goal ? {goal:p.goal} : {}), ...(p.chests?.length ? {chests:p.chests.slice(-400)} : {}), ...(p.live ? {live:p.live} : {}), ...(p.draft ? {draft:p.draft} : {}), ...(p.ui ? {ui:p.ui} : {}), ...(p.guilds ? {guild:p.guild || null, guilds:p.guilds, ghist:p.ghist || []} : {}), ...(p.joinedAt ? {joinedAt:p.joinedAt} : {}), ...(p.joinCode ? {joinCode:p.joinCode} : {}), ...(p.bwGoal ? {bwGoal:p.bwGoal} : {})}; }
 async function writePlayer(patch){
   const p = S.players[S.uid]; Object.assign(p, patch); bump();
   if (S.mode === "local"){ saveLocal(); return true; }
@@ -4373,7 +4381,7 @@ function subscribePlayers(){
     seen.add(gg);
     for (const d of snap.docs){
       const data = d.data() || {};
-      S.players[d.id] = {...(S.players[d.id]||{workouts:[]}), nick:data.nick||"Hráč", crest:data.crest||null, nickSet:!!data.nickSet, custom:data.custom||[], created:data.created, plan:data.plan||null, notes:data.notes||{}, bw:data.bw||[], h:data.h||null, sex:data.sex||null, title:data.title||null, wear:data.wear||null, goal:data.goal||null, chests:data.chests||[], live:data.live||null, draft:data.draft||null, ui:data.ui||null, guild:data.guild||null, guilds:data.guilds, ghist:data.ghist||null, joinedAt:data.joinedAt||0, joinCode:data.joinCode||""};
+      S.players[d.id] = {...(S.players[d.id]||{workouts:[]}), nick:data.nick||"Hráč", crest:data.crest||null, nickSet:!!data.nickSet, custom:data.custom||[], created:data.created, plan:data.plan||null, notes:data.notes||{}, bw:data.bw||[], h:data.h||null, sex:data.sex||null, title:data.title||null, wear:data.wear||null, goal:data.goal||null, chests:data.chests||[], live:data.live||null, draft:data.draft||null, ui:data.ui||null, guild:data.guild||null, guilds:data.guilds, ghist:data.ghist||null, joinedAt:data.joinedAt||0, joinCode:data.joinCode||"", bwGoal:data.bwGoal||null};
       if (!subs[d.id]) subscribeWorkouts(d.id);
     }
     if (seen.size >= gq.length) S.playersLoaded = true;
@@ -5306,8 +5314,11 @@ function guideSheet(sh){
 }
 
 /* ===== Co je nového: version + short release notes ===== */
-const APP_VER = 98;
+const APP_VER = 99;
 const NEWS = [
+  {v:99, d:"8. 11.", t:"Cílová váha", items:[
+    ["Cíl", "V Knize → Tělo si můžeš nastavit cílovou váhu. Uvidíš, kolik zbývá, a v grafu čáru cíle."],
+    ["Tempo", "Nově i kolik kilo týdně přibíráš nebo shazuješ a tvoje nejnižší a nejvyšší váha."]]},
   {v:98, d:"8. 11.", t:"Přehlednější Kniha", items:[
     ["Pět záložek", "Kniha má teď Přehled, Sílu, Tělo, Docházku a Odznaky. Každá je přesně o tom, co říká název."],
     ["Tělo", "Tělesná váha a vyváženost těla: jak rovnoměrně cvičíš tah, tlak, nohy a střed."],
@@ -7407,7 +7418,7 @@ const niceStep = r => { const raw = r / 4, m = Math.pow(10, Math.floor(Math.log1
 function proChart(pts, opt){
   if (pts.length < 2) return `<div class="empty" style="padding:18px 6px">Graf se ukáže po druhém tréninku s tímhle cvikem.</div>`;
   const W = 340, H = 170, L = 34, R = 10, T = 14, B = 26;
-  const vals = pts.map(p => p.v); let mn = Math.min(...vals), mx = Math.max(...vals);
+  const vals = pts.map(p => p.v), vr = opt.goal ? [...vals, opt.goal] : vals; let mn = Math.min(...vr), mx = Math.max(...vr);
   const pad = Math.max((mx - mn) * .35, mx * .06, .5); let lo = Math.max(0, mn - pad), hi = mx + pad * .6;
   const st = niceStep(hi - lo); lo = Math.floor(lo / st) * st; hi = Math.ceil(hi / st) * st;
   const t0 = pts[0].t, t1 = pts[pts.length-1].t;
@@ -7426,7 +7437,7 @@ function proChart(pts, opt){
     <defs><linearGradient id="pcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--ember)" stop-opacity=".28"/><stop offset="1" stop-color="var(--ember)" stop-opacity="0"/></linearGradient></defs>
     ${grid.map(v => `<line x1="${L}" x2="${W-R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="gl"/><text x="${L-6}" y="${(Y(v)+3.5).toFixed(1)}" text-anchor="end">${opt.fmt(v)}</text>`).join("")}
     ${(() => { const keep = [], gap = 40; for (const i of [...xl0].reverse()) if (!keep.length || xy[keep[keep.length-1]][0] - xy[i][0] >= gap) keep.push(i); return keep.reverse(); })().map(i => `<text x="${xy[i][0].toFixed(1)}" y="${H-8}" text-anchor="${i === 0 && n > 1 ? "start" : i === n-1 ? "end" : "middle"}">${dl(pts[i].t)}</text>`).join("")}
-    <path d="${d} L${xy[n-1][0].toFixed(1)} ${H-B} L${xy[0][0].toFixed(1)} ${H-B} Z" fill="url(#pcg)"/>
+    ${opt.goal ? `<line x1="${L}" x2="${W-R}" y1="${Y(opt.goal).toFixed(1)}" y2="${Y(opt.goal).toFixed(1)}" class="goal-l"/><text x="${W-R}" y="${(Y(opt.goal)-4).toFixed(1)}" text-anchor="end" class="goal-t">cíl ${opt.fmt(opt.goal)}</text>` : ""}<path d="${d} L${xy[n-1][0].toFixed(1)} ${H-B} L${xy[0][0].toFixed(1)} ${H-B} Z" fill="url(#pcg)"/>
     ${n >= 3 ? `<line x1="${X(t0).toFixed(1)}" y1="${Y(ty(t0)).toFixed(1)}" x2="${X(t1).toFixed(1)}" y2="${Y(ty(t1)).toFixed(1)}" class="tr"/>` : ""}
     <path d="${d}" fill="none" stroke="var(--ember)" stroke-width="2.2" stroke-linecap="round"/>
     <line x1="${xy[sel][0].toFixed(1)}" x2="${xy[sel][0].toFixed(1)}" y1="${T}" y2="${H-B}" class="sl"/>
@@ -7470,15 +7481,19 @@ function weightCard(p){
   const inp = !S.demo && !S.readOnly ? `<div class="bwrow"><input id="bwin" type="number" inputmode="decimal" step="0.1" placeholder="Dnešní váha v kg" aria-label="Tělesná váha v kg"><button data-act="addbw">Zapsat</button></div>` : "";
   if (!bw.length) return `<h2 class="sec">Tělesná váha</h2><div class="card">${inp}<div class="empty" style="padding:12px 4px">Zapiš si váhu a uvidíš tu její vývoj.</div></div>`;
   const last = bw[bw.length-1], ref = bw.filter(b => b.t <= last.t - 30*864e5).pop() || bw[0], d = last.kg - ref.kg;
+  const goal = p.bwGoal || null, lo = Math.min(...bw.map(b => b.kg)), hi = Math.max(...bw.map(b => b.kg));
+  const t0 = bw.find(b => b.t >= last.t - 35*864e5) || bw[0], tempo = last.t - t0.t >= 7*864e5 ? (last.kg - t0.kg) / ((last.t - t0.t) / (7*864e5)) : null;
   const rg = S.bwR === "all" ? "all" : "3m", list = rg === "all" ? bw : bw.filter(b => b.t >= Date.now() - 92*864e5);
   const pts = (list.length >= 2 ? list : bw).map(b => ({t:b.t, v:b.kg}));
   const sel = S.bwPt != null && S.bwPt < pts.length ? S.bwPt : pts.length - 1;
   return `<h2 class="sec">Tělesná váha</h2>
   <div class="card wcard2">
-    <div class="wk3"><div><span>Teď</span><b class="num">${fmt(last.kg, 1)}<em> kg</em></b></div><div><span>Za 30 dní</span><b class="num">${d > 0 ? "+" : ""}${fmt(d, 1)}<em> kg</em></b></div><div><span>Zápisů</span><b class="num">${bw.length}</b></div></div>
+    <div class="wk3"><div><span>Teď</span><b class="num">${fmt(last.kg, 1)}<em> kg</em></b></div><div><span>Za 30 dní</span><b class="num">${d > 0 ? "+" : ""}${fmt(d, 1)}<em> kg</em></b></div>${goal ? `<div><span>Cíl</span><b class="num">${fmt(goal, 1)}<em> kg</em></b><small class="gl2 ${Math.abs(last.kg - goal) < .3 ? "ok" : ""}">${Math.abs(last.kg - goal) < .3 ? "splněno 🎯" : `zbývá ${fmt(Math.abs(last.kg - goal), 1)} kg`}</small></div>` : `<div><span>Zápisů</span><b class="num">${bw.length}</b></div>`}</div>
+    <div class="bwmeta"><span>Tempo <b class="num">${tempo == null ? "—" : Math.abs(tempo) < .05 ? "stabilní" : `${tempo > 0 ? "+" : "−"}${fmt(Math.abs(tempo), 1)} kg/týden`}</b></span><span>Nejníž <b class="num">${fmt(lo, 1)}</b></span><span>Nejvýš <b class="num">${fmt(hi, 1)}</b></span></div>
+    ${S.demo || S.readOnly ? "" : S.bwGoalOpen ? `<div class="bwrow"><input id="bwgoal" type="number" inputmode="decimal" step="0.1" placeholder="Cílová váha v kg" value="${goal || ""}" aria-label="Cílová váha v kg"><button data-act="bwgoalsave">Uložit</button>${goal ? `<button data-act="bwgoaldel" aria-label="Smazat cíl">Smazat</button>` : ""}</div>` : `<button class="linkbtn bwgoalbtn" data-act="bwgoalopen">${goal ? "Změnit cílovou váhu" : "Nastavit cílovou váhu"}</button>`}
     ${inp}
     <div class="sxh" style="margin-top:6px"><span>${new Date(pts[sel].t).getDate()}. ${new Date(pts[sel].t).getMonth()+1}. · <b style="color:var(--fg)">${fmt(pts[sel].v, 1)} kg</b></span><div class="seg sm">${[["3m","3 měs."],["all","Vše"]].map(([k, l]) => `<button data-act="bwr" data-id="${k}" aria-pressed="${rg === k}">${l}</button>`).join("")}</div></div>
-    ${proChart(pts, {fmt:v => fmt(v, v % 1 ? 1 : 0), sel, act:"bwpt"})}
+    ${proChart(pts, {fmt:v => fmt(v, v % 1 ? 1 : 0), sel, act:"bwpt", goal})}
   </div>`;
 }
 function partsCard(st){
@@ -8874,6 +8889,14 @@ document.addEventListener("click", async e => {
     case "rival": S.rival = id; lsSet("iq.rival", id); render(); break;
     case "react": toggleReaction(id, t.dataset.w, t.dataset.e); break;
     case "delw": ask("Smazat trénink?", "Trénink i jeho XP zmizí ze statistik.", "Smazat", () => deleteWorkout(id)); break;
+    case "bwgoalopen": S.bwGoalOpen = true; render(); setTimeout(() => document.getElementById("bwgoal")?.focus(), 50); break;
+    case "bwgoaldel": if (!canWrite()) break; S.bwGoalOpen = false; if (await writePlayer({bwGoal:null})) toast("Cíl smazán."); render(); break;
+    case "bwgoalsave": {
+      const v = parseFloat(String(document.getElementById("bwgoal")?.value || "").replace(",", "."));
+      if (!(v > 25 && v < 300)){ toast("Zadej cílovou váhu v kg, třeba 85."); break; }
+      if (!canWrite()) break;
+      S.bwGoalOpen = false; if (await writePlayer({bwGoal:Math.round(v*10)/10})) toast("Cíl uložen 🎯"); render(); break;
+    }
     case "addbw": {
       const v = parseFloat(String(bwVal||"").replace(",", "."));
       if (!(v > 25 && v < 300)){ toast("Zadej váhu v kg, třeba 82,5."); break; }
