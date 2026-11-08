@@ -3342,6 +3342,8 @@ body.insess .gban .gcloth,html.hid .gban .gcloth{animation:none}
 .gs-adm{width:100%;display:flex;flex-direction:column;gap:6px;margin-top:6px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--dim)}
 .gs-adm input{font-size:12px;color:var(--muted)}
 .gsplash .sp-hint a{color:var(--muted)}
+
+.gs-solo{font-size:12px;color:var(--dim);text-align:center;line-height:1.5;max-width:300px;margin:8px auto 0}
 .acct{display:flex;flex-direction:column;gap:6px;margin:6px 0 4px}
 .acct button{width:100%;padding:9px 12px;background:none;border:1px solid var(--line);color:var(--muted);font-size:12px;text-align:left}
 /* zobrazení + oznámení */
@@ -6614,11 +6616,12 @@ function gateSplash(mode, ctx = {}){
       <div class="sp-hint">${esc(ctx.email || "")} · <a href="#" data-gs="out">jiný účet</a></div>`
     : mode === "new" ? `
       <div class="gs-slogan sm">Vítej, ${esc(ctx.first || "bojovníku")}!</div>
-      <div class="gs-sub">Máš kód od kámoše, nebo převodní kód ze staré appky? Zadej ho. Jinak si založ vlastní guildu.</div>
+      <div class="gs-sub">Máš kód od kámoše? Zadej ho a přidáš se k jeho guildě.</div>
       <div class="gs-code"><input id="gscode" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="KÓD"><button class="btn btn-fire" data-gs="code">Pokračovat</button></div>
       <div class="gs-err" id="gserr">${esc(ctx.err || "")}</div>
       <div class="g2or">nebo</div>
-      <button class="gsec gs-w" data-gs="free">Založit vlastní guildu</button>
+      <button class="gsec gs-w" data-gs="free">Začít sám</button>
+      <div class="gs-solo">Plán, tréninky, XP i boss fungují i bez party. Guildu si založíš nebo se k nějaké přidáš kdykoli později v Aréně.</div>
       ${ctx.admin ? `<div class="gs-adm"><span>Správce: přenos dat ze staré appky</span><input type="file" id="gsfile" accept=".json,application/json"><button class="gsec" data-gs="import">Nahrát data</button><div id="gsout"></div></div>` : ""}
       <div class="sp-hint">${esc(ctx.email || "")} · <a href="#" data-gs="out">odhlásit</a></div>`
     : `
