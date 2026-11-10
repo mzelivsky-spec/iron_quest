@@ -8793,9 +8793,17 @@ document.addEventListener("click", async e => {
     case "opennotif": if (S.mode !== "db"){ toast("Oznámení fungují jen v přihlášené appce."); break; } S.sheet = {type:"notif"}; render(); if (!S.push) pushInit(); break;
     case "openview": S.sheet = {type:"view"}; render(); break;
     case "shareapp": {
-      const url = "https://mzelivsky-spec.github.io/iron_quest/", text = "Zkus Iron Quest, appku na posilovnu, kde za tréninky leveluješ a mlátíš bossy 💪";
-      if (navigator.share){ try { await navigator.share({title:"Iron Quest", text, url}); } catch(e){} break; }
-      try { await navigator.clipboard.writeText(text + "\n" + url); toast("Odkaz zkopírován, pošli ho kámošovi."); } catch(e){ toast(url); }
+      const text = `Zkus Iron Quest 💪 Appka na posilovnu, kde za tréninky leveluješ, sbíráš trofeje a s partou mlátíte bossy.
+
+👉 https://mzelivsky-spec.github.io/iron_quest/
+
+Jak z toho udělat appku:
+📱 Android: otevři odkaz v Chromu → ⋮ vpravo nahoře → Přidat na plochu
+🍏 iPhone: otevři odkaz v Safari → Sdílet ⬆️ → Přidat na plochu
+
+Přihlas se Googlem a pak buď zadej kód od kámoše, nebo dej „Začít sám“. V Profilu si zapni oznámení 🔔`;
+      if (navigator.share){ try { await navigator.share({text}); } catch(e){} break; }
+      try { await navigator.clipboard.writeText(text); toast("Zpráva zkopírována, pošli ji kámošovi."); } catch(e){ toast("https://mzelivsky-spec.github.io/iron_quest/"); }
       break;
     }
     case "pushmaster": pushMaster(); break;
