@@ -12,7 +12,7 @@ const STALE = 3 * 3600e3, KEEP = 14 * 864e5;
 const TZ = "Europe/Prague";
 const hourIn = t => +new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", hourCycle: "h23" }).format(t);
 const dateIn = t => new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(t); // 2026-11-08
-const DEF = { chat: true, react: true, train: true, boss: true, event: true, quiet: true };
+const DEF = { chat: true, react: true, train: true, boss: true, event: true, newp: true, quiet: true };
 const KIND = { chat: "chat", react: "react", train: "train", boss10: "boss", bosskill: "boss", event: "event" };
 
 let NOW = 0, QUIET = false, sent = 0;
@@ -87,7 +87,39 @@ try {
     console.log("event", id, "ohlášen");
   }
 } catch (e) { console.log("event: ", e.message); }
+
+/* ---- nový hráč → oznámení jen správci (v nočním klidu počká do rána) ---- */
+try { await newPlayers(); } catch (e) { console.log("nový hráč: ", e.message); }
 return { q: qs.length, sent };
+}
+
+let newpLast = null, adminPid = null;
+async function newPlayers() {
+  const st = db.doc("pushState/newp");
+  if (newpLast == null) newpLast = (await st.get()).data()?.last ?? null;
+  if (newpLast == null) { newpLast = NOW; await st.set({ last: NOW }); return; }
+  const nw = (await db.collection("uidmap").where("t", ">", newpLast).orderBy("t").get()).docs;
+  if (!nw.length) return;
+  if (!adminPid) {
+    const mail = readFileSync(new URL("../firestore.rules", import.meta.url), "utf8").match(/token\.email == '([^']+)'/)?.[1]; // správce podle pravidel databáze
+    const u = await admin.auth().getUserByEmail(mail || "");
+    adminPid = (await db.doc("uidmap/" + u.uid).get()).data()?.pid;
+    if (!adminPid) return;
+  }
+  const ap = await pushOf(adminPid);
+  if (QUIET && ({ ...DEF, ...(ap?.prefs || {}) }).quiet) return;
+  for (const d of nw) {
+    const u = d.data();
+    if (u.pid === adminPid) { newpLast = u.t; continue; }
+    const p = await player(u.pid);
+    if (!p?.nick && NOW - u.t < 30 * 60e3) break; // profil se ještě zakládá, zkusím za chvíli
+    let where = "bez guildy";
+    if (p?.guild) where = "v guildě " + ((await db.doc("guilds/" + p.guild).get()).data()?.name || p.guild);
+    await sendTo(adminPid, "newp", { title: `🆕 Nový hráč: ${p?.nick || "bez přezdívky"}`, body: `Právě se přidal do Iron Questu (${where}).`, tag: "newp-" + u.pid, go: "" });
+    console.log("nový hráč", u.pid, where);
+    newpLast = u.t;
+  }
+  await st.set({ last: newpLast });
 }
 
 /* ---- úklid starých záznamů (jednou za běh) ---- */
