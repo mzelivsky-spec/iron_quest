@@ -28,6 +28,7 @@ jobs:
         env:
           FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
           LOOP_MIN: "340"
+          TZ: Europe/Prague
       - name: Spustit další kolo
         if: success()
         run: gh workflow run postak.yml --ref main

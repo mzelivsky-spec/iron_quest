@@ -88,6 +88,26 @@ try {
   }
 } catch (e) { console.log("event: ", e.message); }
 
+/* ---- vpád: náhodný event, plán se čte z appky; ohlásí se hned na začátku ---- */
+try {
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const a = html.indexOf("/*RAID-SCHED*/"), b = html.indexOf("/*/RAID-SCHED*/");
+  if (a >= 0 && b > a) {
+    const { raidSchedule, RAID_META } = new Function(html.slice(a, b) + ";return { raidSchedule, RAID_META };")();
+    const D = (y, m, d) => new Date(y, m - 1, d).getTime();
+    const spans = [...html.matchAll(/from:D\((\d+),(\d+),(\d+)\), to:D\((\d+),(\d+),(\d+)\), boss:/g)].map(m => [D(+m[1], +m[2], +m[3]), D(+m[4], +m[5], +m[6])]);
+    for (const r of raidSchedule(spans, NOW)) {
+      if (NOW < r.from || NOW >= Math.min(r.to, r.from + 3 * 3600e3)) continue;
+      const st = db.doc("pushState/raids"), sentR = (await st.get()).data()?.sent || [];
+      if (sentR.includes(r.key)) continue;
+      await st.set({ sent: [...sentR, r.key].slice(-60) });
+      const m = RAID_META[r.id], all = (await db.collection("push").get()).docs.map(d => d.id);
+      for (const pid of all) await sendTo(pid, "event", { title: `${m.emo} VPÁD: ${m.n}!`, body: `${m.b} ${m.live}. Vpád trvá jen pár dní. Do boje!`, tag: "raid-" + r.key, go: "" });
+      console.log("vpád", r.key, r.id, "ohlášen");
+    }
+  }
+} catch (e) { console.log("vpád: ", e.message); }
+
 /* ---- nový hráč → oznámení jen správci (v nočním klidu počká do rána) ---- */
 try { await newPlayers(); } catch (e) { console.log("nový hráč: ", e.message); }
 return { q: qs.length, sent };
