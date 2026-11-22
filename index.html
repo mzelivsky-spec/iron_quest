@@ -5283,7 +5283,7 @@ function computeRaids(W, out, ps){
   for (const R of raidList()){
     if (R.from > now) break;
     const T = RAID_TH[R.id], b = RAID_BOSS[T.boss];
-    const active = ids.filter(id => (ps[id].workouts||[]).some(w => w.date >= R.from - 4*WEEK && w.date < R.to)).length;
+    const active = ids.filter(id => (ps[id].workouts||[]).some(w => w.date >= R.from - 4*WEEK && w.date < R.from)).length;
     const hp = Math.round(RAID_HP_PER * Math.max(2, active));
     const ev = [], xp = {}, nW = {};
     for (const id of ids) for (const w of (ps[id].workouts||[])){
@@ -6875,6 +6875,7 @@ function weakMul(b, part, dayParts){
   return part === b.weak ? 1.5 : 1;
 }
 const weakTxt = b => b.combo ? b.combo.map(x => x === "act" ? "aktivita" : PNAME[x].toLowerCase()).join(" + ") : PNAME[b.weak].toLowerCase();
+const HP_FIX_WK = new Date(2026, 10, 16).getTime();
 let WORLD = {bosses:[], season:null, startsAt:SEASON0};
 function computeWorld(out, ps){
   const W = {bosses:[], season:null, prevSeason:null, lord:null, startsAt:weekStart(startT())};
@@ -6886,7 +6887,8 @@ function computeWorld(out, ps){
     if (idx === prev) idx = (idx + 1) % BOSSES.length;
     prev = idx;
     const evw = evAt(wk + 3*DAY), b = evw && EV_BOSS[evw.boss] ? EV_BOSS[evw.boss] : BOSSES[idx], wkEnd = nextWk(wk);
-    const active = ids.filter(id => (ps[id].workouts||[]).some(w => w.date >= wk - 4*WEEK && w.date < wkEnd)).length;
+    /* od 16. 11. 2026 se život bosse určí na začátku týdne a během týdne se nemění (nový člen ho nezvedne) */
+    const aTo = wk >= HP_FIX_WK ? wk : wkEnd, active = ids.filter(id => (ps[id].workouts||[]).some(w => w.date >= wk - 4*WEEK && w.date < aTo)).length;
     const rov = RW.reduce((a, [x, y]) => a + Math.max(0, Math.min(y, wkEnd) - Math.max(x, wk)), 0);
     let hp = Math.round(BOSS_HP_PER * Math.max(2, active) * (1 + .25*(escapes[b.id]||0)) * Math.max(.4, 1 - rov / WEEK));
     const ev = [], combos = {};
