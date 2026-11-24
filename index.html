@@ -7066,7 +7066,9 @@ const TIER_COL = {rust:["#7a4a2c","#a7714a"], iron:["#6e7076","#aeb0b5"], steel:
 function crestSocket(pid){
   const p = P()[pid] || {}, st = allStats()[pid], lvl = st ? st.lvl.level : 1, tier = crestTier(lvl)[1], [fr, ink] = TIER_COL[tier];
   const cid = crestOf(p), c = CREST_ALL().find(x => x[0] === cid), cursed = st ? st.curseNow > 0 : false;
-  const glyph = c ? `<g transform="translate(18 15) scale(1.08)" fill="none" stroke="${ink}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${c[2]}</g>`
+  if (c && CREST_ART[cid]) crEnsureDefs();
+  const glyph = c && CREST_ART[cid] ? `<g transform="translate(16.3 13.3) scale(1.22)" fill="none" color="${ink}" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))">${CREST_ART[cid]}</g>`
+    : c ? `<g transform="translate(18 15) scale(1.08)" fill="none" stroke="${ink}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${c[2]}</g>`
     : `<text x="31" y="38" text-anchor="middle" font-family="Cinzel,Georgia,serif" font-weight="700" font-size="17" fill="${ink}">${esc((p.nick||"?").trim()[0]||"?").toUpperCase()}</text>`;
   return `<svg viewBox="0 0 62 62" aria-hidden="true">
     <path d="M31 1 57 16V46L31 61 5 46V16Z" fill="#0b0a0b" stroke="${cursed ? "#5a2a26" : fr}" stroke-width="2.4"/>
