@@ -4069,6 +4069,47 @@ html .hero .hwrap.sk.sk-p-kaiju .chan .tip,html .hero .hwrap.sk.sk-p-mech .chan 
 @keyframes uvis{from{transform:translateX(0)}to{transform:translateX(15px)}}
 .uant{animation:hkblink 1s steps(1) infinite}
 /*/ULTRA3-CSS*/
+/*ULTRA-CREST-CSS*/
+.uhxg{pointer-events:none}
+.uhxa{animation:uhxa 4s linear infinite;filter:drop-shadow(0 0 2px var(--uc1)) drop-shadow(0 0 4px var(--uc1))}
+@keyframes uhxa{from{filter:hue-rotate(0deg) drop-shadow(0 0 2px var(--uc1)) drop-shadow(0 0 4px var(--uc1))}to{filter:hue-rotate(360deg) drop-shadow(0 0 2px var(--uc1)) drop-shadow(0 0 4px var(--uc1))}}
+.uhxb{stroke-dasharray:9 91;stroke-linecap:round;animation:uhxb 3s linear infinite;filter:drop-shadow(0 0 3px #fff)}
+.uhxb.b2{animation-delay:-1.5s;filter:drop-shadow(0 0 3px var(--uc2))}
+@keyframes uhxb{to{stroke-dashoffset:-100}}
+.uhxf{opacity:0}
+.uoh{transform-box:fill-box;transform-origin:center;animation:uoh 6s linear infinite}
+@keyframes uoh{to{transform:rotate(360deg);filter:hue-rotate(360deg)}}
+.uorn{transform-box:fill-box;transform-origin:50% 50%}
+.uo-pixel{animation:uopx 1.2s steps(1) infinite}@keyframes uopx{0%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.uo-shiba{animation:uosh 3s ease-in-out infinite}@keyframes uosh{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+.uo-bastet{animation:uobs 3s ease-in-out infinite}@keyframes uobs{0%,100%{filter:drop-shadow(0 0 2px #ffd23a)}50%{filter:drop-shadow(0 0 8px #ffd23a) brightness(1.3)}}
+.uo-stiny{animation:uost 4s ease-in-out infinite}@keyframes uost{0%,86%,100%{transform:scaleY(1)}90%{transform:scaleY(.1)}94%{transform:scaleY(1)}}
+.uo-bossfight{animation:uobf 1.6s steps(1) infinite}@keyframes uobf{0%{transform:translate(0,0)}25%{transform:translate(2px,0)}50%{transform:translate(2px,-2px)}75%{transform:translate(0,-2px)}}
+.uorbit{transform-origin:31px 31px;animation:uorbit 7s linear infinite}@keyframes uorbit{to{transform:rotate(360deg)}}
+.uo-supernova{animation:uosn 7s linear infinite}@keyframes uosn{to{transform:rotate(-360deg)}}
+.uo-kitsune{animation:uokt 3.4s ease-in-out infinite}@keyframes uokt{0%,100%{transform:translateY(0);filter:drop-shadow(0 0 3px #5ad8ff)}50%{transform:translateY(-3px);filter:drop-shadow(0 0 8px #5ad8ff)}}
+.uo-kaiju{animation:uokj 4s linear infinite}@keyframes uokj{0%,78%,100%{transform:translate(0,0) scale(1)}80%,84%,88%{transform:translate(-1px,0) scale(1.08)}82%,86%,90%{transform:translate(1px,0) scale(1.08)}}
+.uo-mech{animation:uomc 2.6s ease-in-out infinite}@keyframes uomc{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+html body.insess .uhxg *,html body.insess .uorn,html body.insess .uorbit,html body.insess .uoh{animation-play-state:paused!important}
+.hsock .uhx-pixel .uhxf{stroke:#7ff0ff;animation:uhxf-pixel 12s ease-out infinite}
+@keyframes uhxf-pixel{0%,12.1%{opacity:0;stroke-width:2}12.9%{opacity:1;stroke-width:7;filter:drop-shadow(0 0 6px #7ff0ff)}21.3%,100%{opacity:0;stroke-width:3}}
+.hsock .uhx-shiba .uhxf{stroke:#ffb05a;animation:uhxf-shiba 12s ease-out infinite}
+@keyframes uhxf-shiba{0%,17.2%{opacity:0;stroke-width:2}18.0%{opacity:1;stroke-width:7;filter:drop-shadow(0 0 6px #ffb05a)}26.4%,100%{opacity:0;stroke-width:3}}
+.hsock .uhx-bastet .uhxf{stroke:#ffd23a;animation:uhxf-bastet 13s ease-out infinite}
+@keyframes uhxf-bastet{0%,11.8%{opacity:0;stroke-width:2}12.6%{opacity:1;stroke-width:7;filter:drop-shadow(0 0 6px #ffd23a)}21.0%,100%{opacity:0;stroke-width:3}}
+.hsock .uhx-stiny .uhxf{stroke:#a86aff;animation:uhxf-stiny 11s ease-out infinite}
+@keyframes uhxf-stiny{0%,34.8%{opacity:0;stroke-width:2}35.6%{opacity:1;stroke-width:7;filter:drop-shadow(0 0 6px #a86aff)}44.0%,100%{opacity:0;stroke-width:3}}
+.hsock .uhx-bossfight .uhxf{stroke:#ff3a2a;animation:uhxf-bossfight 12s ease-out infinite}
+@keyframes uhxf-bossfight{0%,20.8%{opacity:0;stroke-width:2}21.6%{opacity:1;stroke-width:7;filter:drop-shadow(0 0 6px #ff3a2a)}30.0%,100%{opacity:0;stroke-width:3}}
+.hsock .uhx-supernova .uhxf{stroke:#ffffff;animation:uhxf-supernova 14s ease-out infinite}
+@keyframes uhxf-supernova{0%,16.0%{opacity:0;stroke-width:2}16.8%{opacity:1;stroke-width:7;filter:drop-shadow(0 0 6px #ffffff)}25.2%,100%{opacity:0;stroke-width:3}}
+.hsock .uhx-kitsune .uhxf{stroke:#5ad8ff;animation:uhxf-kitsune 13s ease-out infinite}
+@keyframes uhxf-kitsune{0%,12.8%{opacity:0;stroke-width:2}13.6%{opacity:1;stroke-width:7;filter:drop-shadow(0 0 6px #5ad8ff)}22.0%,100%{opacity:0;stroke-width:3}}
+.hsock .uhx-kaiju .uhxf{stroke:#7dff5a;animation:uhxf-kaiju 13s ease-out infinite}
+@keyframes uhxf-kaiju{0%,14.8%{opacity:0;stroke-width:2}15.6%{opacity:1;stroke-width:7;filter:drop-shadow(0 0 6px #7dff5a)}24.0%,100%{opacity:0;stroke-width:3}}
+.hsock .uhx-mech .uhxf{stroke:#ffb020;animation:uhxf-mech 12s ease-out infinite}
+@keyframes uhxf-mech{0%,17.1%{opacity:0;stroke-width:2}17.9%{opacity:1;stroke-width:7;filter:drop-shadow(0 0 6px #ffb020)}26.3%,100%{opacity:0;stroke-width:3}}
+/*/ULTRA-CREST-CSS*/
 /*/ULTRA-CSS*/
 </style>
 
@@ -5895,9 +5936,21 @@ function wornOf(p, st, slot){
   return got.length ? got[got.length - 1] : null;
 }
 const wears = (p, st, id) => { const c = COSM[id]; return !!c && wornOf(p, st, c.slot) === id; };
+
+/*ULTRA-CREST*/
+const ULT_C = {pixel:["#7ff0ff","#ff5fd0"],shiba:["#ffb05a","#ff6fa8"],bastet:["#ffd23a","#3a8aff"],stiny:["#a86aff","#ff3a8a"],bossfight:["#ff3a2a","#ffd23a"],supernova:["#ffffff","#7ad8ff"],kitsune:["#5ad8ff","#ff5a7a"],kaiju:["#7dff5a","#b06aff"],mech:["#ffb020","#3ad2ff"]};
+const HEXD = "M31 -1 59 15V47L31 63 3 47V15Z";
+const ultFrame = fr => { const k = fr && COSM[fr]?.tier === 5 ? fr.slice(2) : null; if (!k || !ULT_C[k]) return ""; const [c1, c2] = ULT_C[k];
+  return `<g class="uhxg uhx-${k}" style="--uc1:${c1};--uc2:${c2}"><path class="uhxa" d="${HEXD}" fill="none" stroke="${c1}" stroke-width="2.2"/><path class="uhxb" d="${HEXD}" fill="none" stroke="#fff" stroke-width="2.4" pathLength="100"/><path class="uhxb b2" d="${HEXD}" fill="none" stroke="${c2}" stroke-width="2.4" pathLength="100"/><path class="uhxf" d="${HEXD}" fill="none" stroke="#fff" stroke-width="5"/></g>`; };
+const ultOrn = (or, body) => { const k = or && COSM[or]?.tier === 5 ? or.slice(2) : null; if (!k || !ULT_C[k]) return null; const [c1, c2] = ULT_C[k];
+  const inner = `<circle class="uoh" cx="24" cy="24" r="21" fill="none" stroke="${c1}" stroke-width="2.2" stroke-dasharray="6 5"/><circle cx="24" cy="24" r="19" fill="${c1}" fill-opacity=".16"/>${body}`;
+  if (k === "supernova") return `<g class="uorbit"><g transform="translate(40 -4) scale(.44)"><g class="uorn uo-${k}">${inner}</g></g></g>`;
+  return `<g transform="translate(39 -5) scale(.46)"><g class="uorn uo-${k}">${inner}</g></g>`; };
+/*/ULTRA-CREST*/
 function cosArt(p, st, pid){
   const fr0 = wornOf(p, st, "frame"), or = wornOf(p, st, "orn"), vcs0 = pid && fr0 ? skVarCss(pid, fr0).replace(/^;/, "") : "", vcs = vcs0 && vcs0.includes("--hue") && fr0 !== "r-drift" ? vcs0 + ";filter:hue-rotate(var(--hue))" : vcs0, fr = fr0, sid = typeof setOf === "function" ? setOf(p, st) : null;
-  return (false ? `<path d="M31 -2 60 15V47L31 64 2 47V15Z" fill="none" stroke="${SETS[sid].c}" stroke-width="1.4" opacity=".9"/><path d="M31 -4 62 14V48L31 66 0 48V14Z" fill="none" stroke="${SETS[sid].c}" stroke-width="3" opacity=".25"/>` : "") + (fr && FRAME[fr] ? (vcs ? `<g style="${vcs}">${FRAME[fr]}</g>` : FRAME[fr]) : "") + (or && ORN[or] ? `<g transform="translate(43 1) scale(.38)"><circle cx="24" cy="24" r="20" fill="rgba(255,200,120,.22)"/>${ORN[or].replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "")}</g>` : "");
+  const uo = or && ORN[or] ? ultOrn(or, ORN[or].replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "")) : null;
+  return ultFrame(fr) + (false ? `<path d="M31 -2 60 15V47L31 64 2 47V15Z" fill="none" stroke="${SETS[sid].c}" stroke-width="1.4" opacity=".9"/><path d="M31 -4 62 14V48L31 66 0 48V14Z" fill="none" stroke="${SETS[sid].c}" stroke-width="3" opacity=".25"/>` : "") + (fr && FRAME[fr] ? (vcs ? `<g style="${vcs}">${FRAME[fr]}</g>` : FRAME[fr]) : "") + (uo ? uo : or && ORN[or] ? `<g transform="translate(43 1) scale(.38)"><circle cx="24" cy="24" r="20" fill="rgba(255,200,120,.22)"/>${ORN[or].replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "")}</g>` : "");
 }
 const titleOf = (st, p) => { const t = p?.title; return t && COSM[t] && (st?.cos||[]).includes(t) ? COSM[t].n : null; };
 function cosIcon(id){
