@@ -108,6 +108,17 @@ service cloud.firestore {
       allow write: if own(p) || admin();
     }
 
+    // Veřejné vizitky (Síň slávy, členové cizích guild): přečte kdokoli přihlášený, píše a maže jen majitel.
+    // Jen erb, jmenovka, level, liga a souhrnná čísla – nikdy tréninky, váhy, kronika ani chat.
+    match /pub/{p} {
+      allow read: if signed();
+      allow create, update: if own(p)
+        && request.resource.data.keys().hasOnly(['nick', 'g', 'crest', 'wear', 'lvl', 'into', 'need', 'lg', 'title', 'xpW', 'wk', 'xpT', 'gym', 'boss', 'bestSk', 'ch', 't'])
+        && request.resource.data.nick is string && request.resource.data.nick.size() <= 24
+        && request.resource.data.get('title', '').size() <= 40
+        && request.resource.data.g == myGuild();
+      allow delete: if own(p) || admin();
+    }
     // Oznámení: zařízení a nastavení každého hráče. Čte a píše jen on sám (pošťák má vlastní klíč).
     match /push/{p} {
       allow read, write: if own(p) || admin();
