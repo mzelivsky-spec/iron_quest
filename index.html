@@ -8218,7 +8218,10 @@ function demoPub(){
     return {id:"dp" + i, nick, g, gn:DEMO_G[g].name, crest:cr[i], wear:sid ? {plate:sk[i], frame:COSM["r-" + sid] ? "r-" + sid : null, orn:COSM["o-" + sid] ? "o-" + sid : null} : {}, lvl, into:Math.floor(r() * 900), need:1000, lg:Math.min(6, Math.floor(r() * 7)), xpW:Math.floor(300 + r() * 2600), xpT:Math.floor(4000 + r() * 60000), boss:Math.floor(r() * 30), bestSk:Math.floor(1 + r() * 14), gym:Math.floor(20 + r() * 200), title:titles[i], ch:i === 1}; });
   return demoPubC;
 }
-const pubAll = () => { if (!S.demo) subscribePub(); return (S.demo ? demoPub() : Object.entries(S.pub || {}).map(([id, d]) => ({...d, id}))).filter(d => !d.hide).map(pubReg); };
+const pubAll = () => { if (!S.demo) subscribePub(); if (S.demo) return demoPub().map(pubReg);
+  const m = {}; for (const [id, d] of Object.entries(S.pub || {})) m[id] = {...d, id};
+  for (const id of Object.keys(P() || {})) { const p = P()[id]; if (p?.pubHide) { delete m[id]; continue; } try { const d = pubSnap(id); if (d) m[id] = {...d, id}; } catch {} }
+  return Object.values(m).filter(d => !d.hide).map(pubReg); };
 function subscribePub(){
   if (subscribePub.on || Date.now() - (subscribePub.err || 0) < 60000 || S.mode !== "db" || typeof db === "undefined") return; subscribePub.on = true;
   db.collection("pub").onSnapshot(snap => { S.pub = {}; for (const d of snap.docs) S.pub[d.id] = d.data() || {}; render(); }, () => { subscribePub.on = false; subscribePub.err = Date.now(); });
@@ -8228,15 +8231,21 @@ function publishPub(){
   if (S.mode !== "db" || S.demo || S.readOnly || !allLoaded() || !me()) return;
   const p = me(), st = myStats(); if (!st) return;
   if (p.pubHide){ if (publishPub.last !== "hidden"){ publishPub.last = "hidden"; window.IQA?.batch([{op:"delete", path:"pub/" + S.uid}]).catch(() => { publishPub.last = null; }); } return; }
-  let title = ""; try { title = String(mainTitle(st, p) || "").replace(/<[^>]*>/g, "").slice(0, 40); } catch {}
-  const d = {nick:String(p.nick || "Hráč").slice(0, 24), g:myG() || null, crest:crestOf(p) || null,
-    wear:{plate:wornOf(p, st, "plate") || null, frame:wornOf(p, st, "frame") || null, orn:wornOf(p, st, "orn") || null},
-    lvl:st.lvl.level, into:Math.round(st.lvl.into), need:Math.round(st.lvl.need), lg:Math.max(0, LEAGUES.indexOf(st.league)), title,
-    xpW:Math.round(st.weekXPNow || 0), wk:weekStart(Date.now()), xpT:Math.round(st.xp || 0), gym:st.gym || 0, boss:st.bossKills || 0, bestSk:st.bestStreak || 0, ch:!!st.isChamp};
+  const d = pubSnap(S.uid); if (!d) return;
   const k = JSON.stringify(d); if (k === publishPub.last) return;
   if (Date.now() - (publishPub.t || 0) < 60000){ clearTimeout(publishPub.tm); publishPub.tm = setTimeout(publishPub, 61000); return; }
   publishPub.t = Date.now();
   window.IQA?.batch([{op:"set", path:"pub/" + S.uid, data:{...d, t:Date.now()}}]).then(() => { publishPub.last = k; }).catch(() => {});
+}
+/* card data for anyone whose full data I have (me and my guild mates) */
+function pubSnap(id){
+  const p = P()[id], st = allStats()[id]; if (!p || !st) return null;
+  let title = ""; try { title = String(mainTitle(st, p) || "").replace(/<[^>]*>/g, "").slice(0, 40); } catch {}
+  const g = id === S.uid ? myG() || null : p.guild || null;
+  return {nick:String(p.nick || "Hráč").slice(0, 24), g, crest:crestOf(p) || null,
+    wear:{plate:wornOf(p, st, "plate") || null, frame:wornOf(p, st, "frame") || null, orn:wornOf(p, st, "orn") || null},
+    lvl:st.lvl.level, into:Math.round(st.lvl.into), need:Math.round(st.lvl.need), lg:Math.max(0, LEAGUES.indexOf(st.league)), title,
+    xpW:Math.round(st.weekXPNow || 0), wk:weekStart(Date.now()), xpT:Math.round(st.xp || 0), gym:st.gym || 0, boss:st.bossKills || 0, bestSk:st.bestStreak || 0, ch:!!st.isChamp};
 }
 const pubOfGuild = g => pubAll().filter(d => d.g === g);
 const gDocX = g => S.demo ? DEMO_G[g] || null : gDoc(g);
