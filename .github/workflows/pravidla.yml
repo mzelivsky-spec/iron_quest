@@ -1,0 +1,29 @@
+name: Pravidla databáze
+on:
+  workflow_dispatch:
+    inputs:
+      rezim:
+        description: "check = jen porovnat, deploy = nasadit firestore.rules"
+        default: "check"
+        required: true
+permissions:
+  contents: read
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: postak
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm install --omit=dev --no-audit --no-fund
+      - run: node rules.mjs
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+          MODE: ${{ inputs.rezim }}
+      - name: Rozdíl živá → repo
+        run: diff -u /tmp/live.rules ../firestore.rules || true
